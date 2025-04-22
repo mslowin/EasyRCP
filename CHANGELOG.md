@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.0.1](https://github.com/mslowin/EasyRCP/compare/v1.0.0...v1.0.1) (2025-04-22)
+
+
+### Features
+
+* cCreate pr-build.yml ([5afebe3](https://github.com/mslowin/EasyRCP/commit/5afebe37b3c1bd00177ead3f21e3947709be7307))
+* create release-build.yml ([1d8542f](https://github.com/mslowin/EasyRCP/commit/1d8542fba210d645573c2bfdca66cc8cf7a04007))
+
 ## 1.0.0 (2025-04-22)
 
 
@@ -12,5 +20,3 @@
 
 * fix github workflow action build-and-release.yml ([99c1d24](https://github.com/mslowin/EasyRCP/commit/99c1d24e0bcbac3a8409205eb67f28c7329c8926))
 * hide console window ([3c0c98d](https://github.com/mslowin/EasyRCP/commit/3c0c98d621da1b024bc023d00384672115ef8419))
-
-
