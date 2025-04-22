@@ -7,7 +7,7 @@ on:
  
 jobs: 
   build:
-    # Statement needed so that the workflow is triggered by pull requests created by bots (release-please bot)
+    # Statement needed so that the workflow is also triggered by pull requests created by bots (release-please bot)
     if: ${{ github.actor != 'github-actions[bot]' || github.actor == 'github-actions[bot]' }}
     runs-on: windows-latest 
 
