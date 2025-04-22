@@ -1,12 +1,15 @@
 name: Pull Request Build Check
 
-on:
-  pull_request:
+on: 
+  pull_request: 
     branches: [master]
-
-jobs:
+    types: [opened, synchronize, reopened]
+ 
+jobs: 
   build:
-    runs-on: windows-latest
+    # Statement needed so that the workflow is triggered by pull requests created by bots (release-please bot)
+    if: ${{ github.actor != 'github-actions[bot]' || github.actor == 'github-actions[bot]' }}
+    runs-on: windows-latest 
 
     steps:
       - name: Checkout code
