@@ -4,6 +4,10 @@ on:
   push:
     branches:
       - master
+      
+permissions:
+  contents: write
+  pull-requests: write
 
 jobs:
   release-please:
@@ -12,7 +16,6 @@ jobs:
       - uses: googleapis/release-please-action@v4
         with:
           release-type: simple
-          package-name: winforms-app
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
