@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.2](https://github.com/mslowin/EasyRCP/compare/v1.0.1...v1.0.2) (2025-04-22)
+
+
+### Bug Fixes
+
+* update release-please.yml ([d3655b8](https://github.com/mslowin/EasyRCP/commit/d3655b845b0713fedb17986c922d65c279f75434))
+
 ## [1.0.1](https://github.com/mslowin/EasyRCP/compare/v1.0.0...v1.0.1) (2025-04-22)
 
 
