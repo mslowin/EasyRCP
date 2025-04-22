@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.3](https://github.com/mslowin/EasyRCP/compare/v1.0.2...v1.0.3) (2025-04-22)
+
+
+### Features
+
+* finish workflows ([27f6b09](https://github.com/mslowin/EasyRCP/commit/27f6b09e8dd1485eea606ca2eb472841fb63f967))
+
 ## [1.0.2](https://github.com/mslowin/EasyRCP/compare/v1.0.1...v1.0.2) (2025-04-22)
 
 
