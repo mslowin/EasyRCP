@@ -30,7 +30,7 @@ public static class RcpAutomationService
 
             driver.ExecuteScript(@"
                 var select = document.getElementById('remote_select');
-                select.value = '2';
+                select.value = '0';
                 select.dispatchEvent(new Event('change'));
             ");
 
@@ -72,6 +72,9 @@ public static class RcpAutomationService
         {
             return false; // Handle login failure gracefully
         }
+
+        // Make sure everything is loaded
+        Thread.Sleep(2000);
 
         var startWorkButton = driver.FindElement(By.CssSelector("button.start-work-button"));
 

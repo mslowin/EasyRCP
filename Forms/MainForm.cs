@@ -1,3 +1,4 @@
+using EasyRCP.Forms;
 using EasyRCP.Services;
 
 namespace EasyRCP;
@@ -10,13 +11,16 @@ public partial class MainForm : Form
     /// <summary>
     /// Main form is just a settings form that is hidden by default.
     /// </summary>
-    public MainForm()
+    public MainForm(bool isHidden)
     {
         InitializeComponent();
         this.StartPosition = FormStartPosition.CenterScreen;
-        this.WindowState = FormWindowState.Minimized;
-        this.ShowInTaskbar = false;
-        this.Visible = false;
+        if (isHidden)
+        {
+            this.WindowState = FormWindowState.Minimized;
+            this.ShowInTaskbar = false;
+            this.Visible = false;
+        }
 
         trayMenu = new ContextMenuStrip();
         trayMenu.Items.Add("Rozpocznij pracê", null, (s, e) => StartWork());
@@ -25,9 +29,13 @@ public partial class MainForm : Form
 
         trayIcon = new NotifyIcon();
         trayIcon.Text = "EasyRCP";
-        trayIcon.Icon = new Icon("Resources/RcpOnlineIcon.ico");
         trayIcon.ContextMenuStrip = trayMenu;
         trayIcon.Visible = true;
+        byte[] iconBytes = Properties.Resources.RcpOnlineIcon;
+        using (var ms = new MemoryStream(iconBytes))
+        {
+            trayIcon.Icon = new Icon(ms);
+        }
 
         trayIcon.DoubleClick += (s, e) => this.Show();
     }
@@ -57,10 +65,22 @@ public partial class MainForm : Form
 
     private void ButtonSave_Click(object sender, EventArgs e)
     {
+        if(string.IsNullOrEmpty(textEmail.Text) || string.IsNullOrEmpty(textPassword.Text))
+        {
+            MessageBox.Show("Dane logowania nie mog¹ byæ puste.", "B³¹d", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            return;
+        }
+
         UserCredentialsService.SaveCredentials(textEmail.Text, textPassword.Text);
         this.WindowState = FormWindowState.Minimized;
         this.ShowInTaskbar = false;
         this.Visible = false;
+
+        using var prompt = new StartWorkPromptForm();
+        if (prompt.ShowDialog() == DialogResult.Yes)
+        {
+            RcpAutomationService.StartWork();
+        }
         ////MessageBox.Show("Dane zapisane.", "Info", MessageBoxButtons.OK, MessageBoxIcon.Information);
     }
 

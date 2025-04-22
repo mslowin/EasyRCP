@@ -11,31 +11,43 @@ internal static class Program
     [STAThread]
     static void Main()
     {
-        // To customize application configuration such as set high DPI settings or default font,
-        // see https://aka.ms/applicationconfiguration.
-        AddApplicationToStartup();
-        ApplicationConfiguration.Initialize();
-
-        var credentials = UserCredentialsService.LoadCredentials();
-        if (credentials == null)
+        try
         {
-            MessageBox.Show(
-                "Brak loginu i has³a, proszê uzupe³niæ dane w ustawieniach.",
-                "Brak loginu i has³a",
-                MessageBoxButtons.OK,
-                MessageBoxIcon.Information);
-        }
+            // To customize application configuration such as set high DPI settings or default font,
+            // see https://aka.ms/applicationconfiguration.
+            AddApplicationToStartup();
+            ApplicationConfiguration.Initialize();
 
-        if (credentials != null && !RcpAutomationService.CheckIfWorkAlreadyStarted())
-        {
-            using var prompt = new StartWorkPromptForm();
-            if (prompt.ShowDialog() == DialogResult.Yes)
+            var credentials = UserCredentialsService.LoadCredentials();
+            if (credentials == null)
             {
-                RcpAutomationService.StartWork();
-            }
-        }
+                MessageBox.Show(
+                    "Brak loginu i has³a, proszê uzupe³niæ dane w ustawieniach.",
+                    "Brak loginu i has³a",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Information);
 
-        Application.Run(new MainForm()); // running the hidden main form
+                Application.Run(new MainForm(isHidden: false));
+                return;
+            }
+
+            if (!RcpAutomationService.CheckIfWorkAlreadyStarted())
+            {
+                using var prompt = new StartWorkPromptForm();
+                if (prompt.ShowDialog() == DialogResult.Yes)
+                {
+                    RcpAutomationService.StartWork();
+                }
+            }
+
+            Application.Run(new MainForm(isHidden: true)); // running the hidden main form
+        }
+        catch (Exception ex)
+        {
+            File.AppendAllText("output.txt", $"[{DateTime.Now}] {ex}\n\n");
+            MessageBox.Show("Wyst¹pi³ nieoczekiwany b³¹d. Szczegó³y zapisano w pliku output.txt",
+                "B³¹d", MessageBoxButtons.OK, MessageBoxIcon.Error);
+        }
     }
 
     static void AddApplicationToStartup()
