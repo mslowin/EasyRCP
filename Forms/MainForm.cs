@@ -25,7 +25,7 @@ public partial class MainForm : Form
         trayMenu = new ContextMenuStrip();
         trayMenu.Items.Add("Rozpocznij pracê", null, (s, e) => StartWork());
         trayMenu.Items.Add("Opcje", null, (s, e) => ShowSettings());
-        trayMenu.Items.Add("WyjdŸ", null, (s, e) => Application.Exit());
+        trayMenu.Items.Add("WyjdŸ", null, (s, e) => Environment.Exit(0));
 
         trayIcon = new NotifyIcon();
         trayIcon.Text = "EasyRCP";

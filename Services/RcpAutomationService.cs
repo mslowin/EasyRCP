@@ -9,6 +9,9 @@ public static class RcpAutomationService
     {
         try
         {
+            var service = ChromeDriverService.CreateDefaultService();
+            service.HideCommandPromptWindow = true;
+
             var options = new ChromeOptions();
 
 #if !DEBUG
@@ -16,7 +19,7 @@ public static class RcpAutomationService
 #endif
 
             // Creating the chrome driver
-            using var driver = new ChromeDriver(options);
+            using var driver = new ChromeDriver(service, options);
             bool wasLoginSuccessful = LogIntoTheRcpAccount(driver);
 
             if (!wasLoginSuccessful)
@@ -36,9 +39,11 @@ public static class RcpAutomationService
 
             driver.ExecuteScript(@"
                 var select = document.getElementById('event_project');
-                select.value = '01 Administracja';
+                select.value = ""01 Administracja"";
                 select.dispatchEvent(new Event('change'));
             ");
+
+            Console.ReadLine(); // stop the browser for debugging
 
             // Make sure everything is loaded
             Thread.Sleep(2000);
@@ -48,7 +53,7 @@ public static class RcpAutomationService
             // Just a small debounce to be sure it registers
             Thread.Sleep(1000);
 
-            //////Console.ReadLine(); // stop the browser for debugging
+            MessageBox.Show($"Zarejestrowano początek pracy", "Sukces", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
         catch (Exception ex)
         {
@@ -58,6 +63,9 @@ public static class RcpAutomationService
 
     public static bool CheckIfWorkAlreadyStarted()
     {
+        var service = ChromeDriverService.CreateDefaultService();
+        service.HideCommandPromptWindow = true;
+
         var options = new ChromeOptions();
 
 #if !DEBUG
@@ -65,7 +73,7 @@ public static class RcpAutomationService
 #endif
 
         // Creating the chrome driver
-        using var driver = new ChromeDriver(options);
+        using var driver = new ChromeDriver(service, options);
         bool wasLoginSuccessful = LogIntoTheRcpAccount(driver);
 
         if (!wasLoginSuccessful)
