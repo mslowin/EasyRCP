@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.4](https://github.com/mslowin/EasyRCP/compare/v1.0.3...v1.0.4) (2025-04-22)
+
+
+### Features
+
+* add test for workflows ([f590473](https://github.com/mslowin/EasyRCP/commit/f590473dca55259274923aea8f902f70eea6dd4d))
+
 ## [1.0.3](https://github.com/mslowin/EasyRCP/compare/v1.0.2...v1.0.3) (2025-04-22)
 
 
