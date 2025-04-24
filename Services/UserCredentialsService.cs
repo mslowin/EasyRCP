@@ -5,10 +5,20 @@ namespace EasyRCP.Services;
 
 public static class UserCredentialsService
 {
-    private static readonly string credentialsFilePath = "credentials.dat";
+    private static readonly string credentialsFilePath = Path.Combine(
+        Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
+        "EasyRCP",
+        "credentials.dat"
+    );
 
     public static void SaveCredentials(string email, string password)
     {
+        var directoryPath = Path.GetDirectoryName(credentialsFilePath);
+        if (directoryPath != null)
+        {
+            Directory.CreateDirectory(directoryPath);
+        }
+
         var combined = $"{email}|{password}";
         var data = Encoding.UTF8.GetBytes(combined);
         var encrypted = ProtectedData.Protect(data, null, DataProtectionScope.CurrentUser);
