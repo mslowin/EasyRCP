@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.5](https://github.com/mslowin/EasyRCP/compare/v1.0.4...v1.0.5) (2025-04-24)
+
+
+### Bug Fixes
+
+* fix credentials file path so that the file always stays in the same place in the system ([b810ed0](https://github.com/mslowin/EasyRCP/commit/b810ed0f12936a959a200463a615d58a9e585bf3))
+
 ## [1.0.4](https://github.com/mslowin/EasyRCP/compare/v1.0.3...v1.0.4) (2025-04-22)
 
 
