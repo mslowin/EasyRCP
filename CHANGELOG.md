@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.6](https://github.com/mslowin/EasyRCP/compare/v1.0.5...v1.0.6) (2025-04-25)
+
+
+### Features
+
+* update release-please.yml to include chromedriver.exe ([1cf3d0d](https://github.com/mslowin/EasyRCP/commit/1cf3d0d546ab060d933b26bae601f6a27c1ad918))
+
 ## [1.0.5](https://github.com/mslowin/EasyRCP/compare/v1.0.4...v1.0.5) (2025-04-24)
 
 
