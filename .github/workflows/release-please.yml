@@ -41,36 +41,7 @@ jobs:
           
       - name: Restore dependencies
         run: dotnet restore
-
-      - name: Get Chrome version
-        id: get-chrome-version
-        run: |
-          $chromeVersion = & "C:\Program Files\Google\Chrome\Application\chrome.exe" --version
-          $version = $chromeVersion -replace 'Google Chrome ', '' -replace '^(\d+\.\d+\.\d+)\..*', '$1'
-          echo "Chrome version: $version"
-          echo "CHROME_VERSION=$version" | Out-File -FilePath $env:GITHUB_ENV -Append
-        shell: pwsh
-
-      - name: Download matching ChromeDriver
-        run: |
-          $version = $env:CHROME_VERSION
-          $metaUrl = "https://googlechromelabs.github.io/chrome-for-testing/last-known-good-versions-with-downloads.json"
-          $meta = Invoke-RestMethod -Uri $metaUrl
-          $driverUrl = $meta.channels.Stable.downloads.chromedriver | Where-Object { $_.platform -eq "win64" -and $_.version -like "$version*" } | Select-Object -First 1 -ExpandProperty url
-
-          if (-not $driverUrl) {
-            Write-Error "No matching ChromeDriver found for Chrome version $version"
-            exit 1
-          }
-
-          echo "Downloading ChromeDriver from $driverUrl"
-          Invoke-WebRequest -Uri $driverUrl -OutFile "chromedriver.zip"
-          Expand-Archive -Path "chromedriver.zip" -DestinationPath "."
-          Copy-Item ".\chromedriver-win64\chromedriver.exe" -Destination "chromedriver.exe"
-          Remove-Item "chromedriver.zip"
-          Remove-Item "chromedriver-win64" -Recurse
-        shell: pwsh
-
+        
       - name: Build app (self-contained)
         run: dotnet publish EasyRCP.csproj -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -o publish
         
