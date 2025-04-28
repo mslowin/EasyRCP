@@ -21,11 +21,11 @@
     </Content>
   </ItemGroup>
 
-  <ItemGroup>
+    <!--<ItemGroup>
         <Content Include="chromedriver.exe">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </Content>
-    </ItemGroup>
+    </ItemGroup>-->
     
   <ItemGroup>
     <PackageReference Include="DotNetSeleniumExtras.WaitHelpers" Version="3.11.0" />
