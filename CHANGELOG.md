@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.0.7](https://github.com/mslowin/EasyRCP/compare/v1.0.6...v1.0.7) (2025-04-28)
+
+
+### Features
+
+* add Polly to introduce retry policy. Improve code documentation ([7673474](https://github.com/mslowin/EasyRCP/commit/76734748df9a7d02f85e18a9ed2d1697f9dcb5c3))
+* update release-please.yml to not include the chrome driver ([28a09e3](https://github.com/mslowin/EasyRCP/commit/28a09e363ead11228dff05fe0c22c44f31b4c162))
+
 ## [1.0.6](https://github.com/mslowin/EasyRCP/compare/v1.0.5...v1.0.6) (2025-04-25)
 
 
