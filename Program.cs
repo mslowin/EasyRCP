@@ -9,7 +9,7 @@ internal static class Program
     /// The main entry point for the application.
     /// </summary>
     [STAThread]
-    static void Main()
+    static async Task Main()
     {
         try
         {
@@ -31,7 +31,7 @@ internal static class Program
                 return;
             }
 
-            if (!RcpAutomationService.CheckIfWorkAlreadyStarted())
+            if (!(await RcpAutomationService.CheckIfWorkAlreadyStartedWithRetryAsync()))
             {
                 using var prompt = new StartWorkPromptForm();
                 if (prompt.ShowDialog() == DialogResult.Yes)

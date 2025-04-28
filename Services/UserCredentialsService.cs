@@ -3,14 +3,25 @@ using System.Text;
 
 namespace EasyRCP.Services;
 
+/// <summary>
+/// Provides functionality to securely save and load user credentials.
+/// </summary>
 public static class UserCredentialsService
 {
+    /// <summary>
+    /// The file path where the credentials are stored.
+    /// </summary>
     private static readonly string credentialsFilePath = Path.Combine(
         Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
         "EasyRCP",
         "credentials.dat"
     );
 
+    /// <summary>
+    /// Saves the user's email and password securely to a file.
+    /// </summary>
+    /// <param name="email">The user's email address.</param>
+    /// <param name="password">The user's password.</param>
     public static void SaveCredentials(string email, string password)
     {
         var directoryPath = Path.GetDirectoryName(credentialsFilePath);
@@ -25,6 +36,12 @@ public static class UserCredentialsService
         File.WriteAllBytes(credentialsFilePath, encrypted);
     }
 
+    /// <summary>
+    /// Loads the user's email and password from the secure file.
+    /// </summary>
+    /// <returns>
+    /// A tuple containing the email and password if the credentials file exists and is valid; otherwise, <c>null</c>.
+    /// </returns>
     public static (string Email, string Password)? LoadCredentials()
     {
         if (!File.Exists(credentialsFilePath))

@@ -1,10 +1,43 @@
 ﻿using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
 using OpenQA.Selenium.Support.UI;
+using Polly;
+using Polly.Retry;
 
 namespace EasyRCP.Services;
 public static class RcpAutomationService
 {
+    private static readonly AsyncRetryPolicy RetryPolicy = Policy
+        .Handle<Exception>()
+        .WaitAndRetryAsync(
+            retryCount: 6,
+            sleepDurationProvider: retryAttempt => TimeSpan.FromMinutes(1),
+            onRetry: (exception, timeSpan, retryCount, _) =>
+            {
+                Console.WriteLine($"[Retry {retryCount}] Błąd: {exception.Message}. Próba ponownie za {timeSpan.TotalSeconds} sek.");
+            });
+
+    /// <summary>
+    /// Checks if work has already started with retry logic.
+    /// </summary>
+    /// <returns>true if work has already started; otherwise, false.</returns>
+    public static async Task<bool> CheckIfWorkAlreadyStartedWithRetryAsync()
+    {
+        return await RetryPolicy.ExecuteAsync(async () =>
+        {
+            bool result = await CheckIfWorkAlreadyStartedAsync();
+            if (!result)
+            {
+                throw new Exception("Użytkownik jeszcze nie rozpoczął pracy.");
+            }
+
+            return result;
+        });
+    }
+
+    /// <summary>
+    /// Starts the work by interacting with the RCP system.
+    /// </summary>
     public static void StartWork()
     {
         try
@@ -61,43 +94,47 @@ public static class RcpAutomationService
         }
     }
 
-    public static bool CheckIfWorkAlreadyStarted()
+    /// <summary>
+    /// Checks if work has already started by interacting with the RCP system.
+    /// </summary>
+    /// <returns>true if work has already started; otherwise, false.</returns>
+    private static Task<bool> CheckIfWorkAlreadyStartedAsync()
     {
-        var service = ChromeDriverService.CreateDefaultService();
-        service.HideCommandPromptWindow = true;
+        return Task.Run(() =>
+        {
+            var service = ChromeDriverService.CreateDefaultService();
+            service.HideCommandPromptWindow = true;
 
-        var options = new ChromeOptions();
+            var options = new ChromeOptions();
 
 #if !DEBUG
             options.AddArgument("--headless");
 #endif
 
-        // Creating the chrome driver
-        using var driver = new ChromeDriver(service, options);
-        bool wasLoginSuccessful = LogIntoTheRcpAccount(driver);
+            // Creating the chrome driver
+            using var driver = new ChromeDriver(service, options);
+            bool wasLoginSuccessful = LogIntoTheRcpAccount(driver);
 
-        if (!wasLoginSuccessful)
-        {
-            return false; // Handle login failure gracefully
-        }
+            if (!wasLoginSuccessful)
+            {
+                return false;
+            }
 
-        // Make sure everything is loaded
-        Thread.Sleep(2000);
+            // Make sure everything is loaded
+            Thread.Sleep(2000);
 
-        var startWorkButton = driver.FindElement(By.CssSelector("button.start-work-button"));
+            var startWorkButton = driver.FindElement(By.CssSelector("button.start-work-button"));
+            string? classAttribute = startWorkButton.GetAttribute("class");
 
-        // Safely handle the possibility of a null value
-        string? classAttribute = startWorkButton.GetAttribute("class");
-
-        // Use null-coalescing operator to ensure a non-null value
-        return classAttribute?.Contains("disabled") ?? false;
+            return classAttribute?.Contains("disabled") ?? false;
+        });
     }
 
     /// <summary>
     /// Logs into the RCP account using the provided credentials.
     /// </summary>
-    /// <param name="driver"></param>
-    /// <returns>true if login was successful, otherwise false.</returns>
+    /// <param name="driver">The ChromeDriver instance used for automation.</param>
+    /// <returns>true if login was successful; otherwise, false.</returns>
     private static bool LogIntoTheRcpAccount(ChromeDriver driver)
     {
         // Navigating to login page
