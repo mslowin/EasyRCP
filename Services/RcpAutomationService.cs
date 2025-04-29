@@ -20,19 +20,22 @@ public static class RcpAutomationService
     /// <summary>
     /// Checks if work has already started with retry logic.
     /// </summary>
-    /// <returns>true if work has already started; otherwise, false.</returns>
-    public static async Task<bool> CheckIfWorkAlreadyStartedWithRetryAsync()
+    /// <returns>true if work has already started; false if nor; null if internet connection was down the whole time.</returns>
+    public static async Task<bool?> CheckIfWorkAlreadyStartedWithRetryAsync()
     {
+        try
+        {
         return await RetryPolicy.ExecuteAsync(async () =>
         {
             bool result = await CheckIfWorkAlreadyStartedAsync();
-            if (!result)
-            {
-                throw new Exception("Użytkownik jeszcze nie rozpoczął pracy.");
-            }
-
             return result;
         });
+    }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Wszystkie retry zakończone niepowodzeniem (pewnie brak internetu): {ex.Message}");
+            return null;
+        }
     }
 
     /// <summary>
@@ -43,11 +46,10 @@ public static class RcpAutomationService
         try
         {
             var service = ChromeDriverService.CreateDefaultService();
-            service.HideCommandPromptWindow = true;
-
             var options = new ChromeOptions();
 
 #if !DEBUG
+            service.HideCommandPromptWindow = true;
             options.AddArgument("--headless");
 #endif
 
@@ -86,11 +88,19 @@ public static class RcpAutomationService
             // Just a small debounce to be sure it registers
             Thread.Sleep(1000);
 
-            MessageBox.Show($"Zarejestrowano początek pracy", "Sukces", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            MessageBox.Show(
+                $"Zarejestrowano początek pracy w systemie RCP",
+                "EasyRCP - Sukces",
+                MessageBoxButtons.OK,
+                MessageBoxIcon.Information);
         }
         catch (Exception ex)
         {
-            MessageBox.Show($"Błąd: {ex.Message}", "Błąd", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            MessageBox.Show(
+                $"Błąd: {ex.Message}",
+                "EasyRCP - Błąd",
+                MessageBoxButtons.OK,
+                MessageBoxIcon.Error);
         }
     }
 
@@ -103,11 +113,10 @@ public static class RcpAutomationService
         return Task.Run(() =>
         {
             var service = ChromeDriverService.CreateDefaultService();
-            service.HideCommandPromptWindow = true;
-
             var options = new ChromeOptions();
 
 #if !DEBUG
+            service.HideCommandPromptWindow = true;
             options.AddArgument("--headless");
 #endif
 
@@ -163,7 +172,7 @@ public static class RcpAutomationService
                     // Login failed
                     MessageBox.Show(
                         "Logowanie nie powiodło się, nieprawidłowe dane. Sprawdź ustawienia aplikacji.",
-                        "Błąd logowania",
+                        "EasyRCP - Błąd logowania",
                         MessageBoxButtons.OK,
                         MessageBoxIcon.Error);
 

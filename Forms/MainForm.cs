@@ -67,7 +67,11 @@ public partial class MainForm : Form
     {
         if(string.IsNullOrEmpty(textEmail.Text) || string.IsNullOrEmpty(textPassword.Text))
         {
-            MessageBox.Show("Dane logowania nie mog¹ byæ puste.", "B³¹d", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            MessageBox.Show(
+                "Dane logowania nie mog¹ byæ puste.",
+                "EasyRCP - B³¹d",
+                MessageBoxButtons.OK,
+                MessageBoxIcon.Error);
             return;
         }
 
