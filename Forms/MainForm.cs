@@ -42,9 +42,9 @@ public partial class MainForm : Form
 
     private static void StartWork()
     {
-        Task.Run(() =>
+        Task.Run(async () =>
         {
-            RcpAutomationService.StartWork();
+            await RcpAutomationService.StartWorkAsync();
         });
     }
 
@@ -63,7 +63,7 @@ public partial class MainForm : Form
         }));
     }
 
-    private void ButtonSave_Click(object sender, EventArgs e)
+    private async void ButtonSave_Click(object sender, EventArgs e)
     {
         if(string.IsNullOrEmpty(textEmail.Text) || string.IsNullOrEmpty(textPassword.Text))
         {
@@ -83,7 +83,7 @@ public partial class MainForm : Form
         using var prompt = new StartWorkPromptForm();
         if (prompt.ShowDialog() == DialogResult.Yes)
         {
-            RcpAutomationService.StartWork();
+            await RcpAutomationService.StartWorkAsync();
         }
         ////MessageBox.Show("Dane zapisane.", "Info", MessageBoxButtons.OK, MessageBoxIcon.Information);
     }

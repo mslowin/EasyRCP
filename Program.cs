@@ -49,7 +49,7 @@ internal static class Program
                 using var prompt = new StartWorkPromptForm();
                 if (prompt.ShowDialog() == DialogResult.Yes)
                 {
-                    RcpAutomationService.StartWork();
+                    await RcpAutomationService.StartWorkAsync();
                 }
             }
 
