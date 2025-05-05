@@ -5,6 +5,7 @@ using Polly;
 using Polly.Retry;
 
 namespace EasyRCP.Services;
+
 public static class RcpAutomationService
 {
     private static readonly AsyncRetryPolicy RetryPolicy = Policy
@@ -20,34 +21,36 @@ public static class RcpAutomationService
     /// <summary>
     /// Checks if work has already started with retry logic.
     /// </summary>
-    /// <returns>true if work has already started; otherwise, false.</returns>
-    public static async Task<bool> CheckIfWorkAlreadyStartedWithRetryAsync()
+    /// <returns>true if work has already started; false if nor; null if internet connection was down the whole time.</returns>
+    public static async Task<bool?> CheckIfWorkAlreadyStartedWithRetryAsync()
     {
-        return await RetryPolicy.ExecuteAsync(async () =>
+        try
         {
-            bool result = await CheckIfWorkAlreadyStartedAsync();
-            if (!result)
+            return await RetryPolicy.ExecuteAsync(async () =>
             {
-                throw new Exception("Użytkownik jeszcze nie rozpoczął pracy.");
-            }
-
-            return result;
-        });
+                bool result = await CheckIfWorkAlreadyStartedAsync();
+                return result;
+            });
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Wszystkie retry zakończone niepowodzeniem (pewnie brak internetu): {ex.Message}");
+            return null;
+        }
     }
 
     /// <summary>
     /// Starts the work by interacting with the RCP system.
     /// </summary>
-    public static void StartWork()
+    public static async Task StartWorkAsync()
     {
         try
         {
             var service = ChromeDriverService.CreateDefaultService();
-            service.HideCommandPromptWindow = true;
-
             var options = new ChromeOptions();
 
 #if !DEBUG
+            service.HideCommandPromptWindow = true;
             options.AddArgument("--headless");
 #endif
 
@@ -64,33 +67,49 @@ public static class RcpAutomationService
             wait.Until(d => d.FindElement(By.Id("remote_select")));
             Thread.Sleep(500);
 
-            driver.ExecuteScript(@"
-                var select = document.getElementById('remote_select');
-                select.value = '0';
-                select.dispatchEvent(new Event('change'));
-            ");
+            var cookies = driver.Manage().Cookies.AllCookies;
+            var phpsess = cookies.First(c => c.Name == "PHPSESSID").Value;
 
-            driver.ExecuteScript(@"
-                var select = document.getElementById('event_project');
-                select.value = ""01 Administracja"";
-                select.dispatchEvent(new Event('change'));
-            ");
+            var api = new RcpApiClient(phpsess);
 
-            Console.ReadLine(); // stop the browser for debugging
+            bool wasStartWorkRegistered = await api.SendClockEventAsync(
+                empId: 0,           // it turns out that the empId is not needed at all. Propably PHPSESSID cookie does the job
+                zone: 2,
+                eventTypeId: 1,     // 1 = start of the work
+                project: "",
+                remote: 0           // 0 = work on the spot
+            );
 
-            // Make sure everything is loaded
-            Thread.Sleep(2000);
-            IWebElement button = driver.FindElement(By.CssSelector("button.start-work-button"));
-            driver.ExecuteScript("arguments[0].click();", button);
+            bool wasProjectChangeRegistered = await api.SendProjectEventAsync(
+                empId: 0,           // as above the empId is not needed here at all
+                zone: 2,
+                eventTypeId: 1,     // 1 = start of the work (this value seems out of place here but just to be sure) 
+                project: "01 Administracja",
+                remote: 0           // 0 = work on the spot (same as eventTypeId)
+            );
+
+            if (!wasStartWorkRegistered || !wasProjectChangeRegistered)
+            {
+                // messagebox handling is done in the api class so here we just return
+                return;
+            }
 
             // Just a small debounce to be sure it registers
             Thread.Sleep(1000);
 
-            MessageBox.Show($"Zarejestrowano początek pracy", "Sukces", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            MessageBox.Show(
+                $"Zarejestrowano początek pracy w systemie RCP",
+                "EasyRCP - Sukces",
+                MessageBoxButtons.OK,
+                MessageBoxIcon.Information);
         }
         catch (Exception ex)
         {
-            MessageBox.Show($"Błąd: {ex.Message}", "Błąd", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            MessageBox.Show(
+                $"Błąd: {ex.Message}",
+                "EasyRCP - Błąd",
+                MessageBoxButtons.OK,
+                MessageBoxIcon.Error);
         }
     }
 
@@ -103,11 +122,10 @@ public static class RcpAutomationService
         return Task.Run(() =>
         {
             var service = ChromeDriverService.CreateDefaultService();
-            service.HideCommandPromptWindow = true;
-
             var options = new ChromeOptions();
 
 #if !DEBUG
+            service.HideCommandPromptWindow = true;
             options.AddArgument("--headless");
 #endif
 
@@ -163,7 +181,7 @@ public static class RcpAutomationService
                     // Login failed
                     MessageBox.Show(
                         "Logowanie nie powiodło się, nieprawidłowe dane. Sprawdź ustawienia aplikacji.",
-                        "Błąd logowania",
+                        "EasyRCP - Błąd logowania",
                         MessageBoxButtons.OK,
                         MessageBoxIcon.Error);
 

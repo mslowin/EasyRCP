@@ -42,9 +42,9 @@ public partial class MainForm : Form
 
     private static void StartWork()
     {
-        Task.Run(() =>
+        Task.Run(async () =>
         {
-            RcpAutomationService.StartWork();
+            await RcpAutomationService.StartWorkAsync();
         });
     }
 
@@ -63,11 +63,15 @@ public partial class MainForm : Form
         }));
     }
 
-    private void ButtonSave_Click(object sender, EventArgs e)
+    private async void ButtonSave_Click(object sender, EventArgs e)
     {
         if(string.IsNullOrEmpty(textEmail.Text) || string.IsNullOrEmpty(textPassword.Text))
         {
-            MessageBox.Show("Dane logowania nie mog¹ byæ puste.", "B³¹d", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            MessageBox.Show(
+                "Dane logowania nie mog¹ byæ puste.",
+                "EasyRCP - B³¹d",
+                MessageBoxButtons.OK,
+                MessageBoxIcon.Error);
             return;
         }
 
@@ -79,7 +83,7 @@ public partial class MainForm : Form
         using var prompt = new StartWorkPromptForm();
         if (prompt.ShowDialog() == DialogResult.Yes)
         {
-            RcpAutomationService.StartWork();
+            await RcpAutomationService.StartWorkAsync();
         }
         ////MessageBox.Show("Dane zapisane.", "Info", MessageBoxButtons.OK, MessageBoxIcon.Information);
     }

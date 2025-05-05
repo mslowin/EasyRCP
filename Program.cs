@@ -23,7 +23,7 @@ internal static class Program
             {
                 MessageBox.Show(
                     "Brak loginu i has³a, proszê uzupe³niæ dane w ustawieniach.",
-                    "Brak loginu i has³a",
+                    "EasyRCP - Brak loginu i has³a",
                     MessageBoxButtons.OK,
                     MessageBoxIcon.Information);
 
@@ -31,12 +31,25 @@ internal static class Program
                 return;
             }
 
-            if (!(await RcpAutomationService.CheckIfWorkAlreadyStartedWithRetryAsync()))
+            // Check if the work has already started - runs in the background 6 times every 1 minute
+            var result = await RcpAutomationService.CheckIfWorkAlreadyStartedWithRetryAsync();
+            if (result == null)
+            {
+                MessageBox.Show(
+                    "Brak po³¹czenia z internetem. Aplikacja dzia³a w tle i bêdzie dostêpna po wznowieniu po³¹czenia z internetem.",
+                    "EasyRCP - Brak Internetu",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Warning);
+
+                Application.Run(new MainForm(isHidden: true)); // running the hidden main form
+                return;
+            }
+            else if (result == false)
             {
                 using var prompt = new StartWorkPromptForm();
                 if (prompt.ShowDialog() == DialogResult.Yes)
                 {
-                    RcpAutomationService.StartWork();
+                    await RcpAutomationService.StartWorkAsync();
                 }
             }
 
@@ -45,8 +58,11 @@ internal static class Program
         catch (Exception ex)
         {
             File.AppendAllText("output.txt", $"[{DateTime.Now}] {ex}\n\n");
-            MessageBox.Show("Wyst¹pi³ nieoczekiwany b³¹d. Szczegó³y zapisano w pliku output.txt",
-                "B³¹d", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            MessageBox.Show(
+                "Wyst¹pi³ nieoczekiwany b³¹d. Szczegó³y zapisano w pliku output.txt",
+                "EasyRCP - B³¹d",
+                MessageBoxButtons.OK,
+                MessageBoxIcon.Error);
         }
     }
 
