@@ -1,5 +1,6 @@
 ﻿using System.Net;
 using System.Text.Json;
+using System.Text.RegularExpressions;
 
 namespace EasyRCP.Services;
 
@@ -14,16 +15,20 @@ public class RcpApiClient
     /// Initializes a new instance of the <see cref="RcpApiClient"/> class.
     /// </summary>
     /// <param name="phpSessionId">The PHP session ID used for authentication.</param>
-    public RcpApiClient(string phpSessionId)
+    public RcpApiClient(string? phpSessionId = null)
     {
         // Cookie container handler to add PHPSESSID cookie
         var handler = new HttpClientHandler
         {
-            CookieContainer = new CookieContainer()
+            CookieContainer = new CookieContainer(),
+            AllowAutoRedirect = true,
         };
 
-        handler.CookieContainer.Add(new Uri("https://panel.rcponline.pl"),
-            new Cookie("PHPSESSID", phpSessionId));
+        if (phpSessionId != null)
+        {
+            handler.CookieContainer.Add(new Uri("https://panel.rcponline.pl"),
+                new Cookie("PHPSESSID", phpSessionId));
+        }
 
         _client = new HttpClient(handler);
         _client.BaseAddress = new Uri("https://panel.rcponline.pl");
@@ -35,6 +40,100 @@ public class RcpApiClient
         _client.DefaultRequestHeaders.UserAgent.ParseAdd("Mozilla/5.0 (Windows NT 10.0; Win64; x64)");
         _client.DefaultRequestHeaders.Referrer = new Uri("https://panel.rcponline.pl/app/zdarzenia");
         _client.DefaultRequestHeaders.Add("X-Requested-With", "XMLHttpRequest");
+    }
+
+    private string? ExtractCsrfToken(string html)
+    {
+        var pattern = "name=\"_csrf_token\"[^>]*value=\"(.*?)\""; // pattern to find the csrf token needed for login
+        var match = Regex.Match(html, pattern);
+        return match.Success ? match.Groups[1].Value : null;
+    }
+
+    /// <summary>
+    /// Sends a start work clock event to the RCP API.
+    /// </summary>
+    /// <param name="email">The employee email.</param>
+    /// <param name="password">The employee password.</param>
+    /// <returns>If login successful the application html is returned; otherwise null.</returns>
+    public async Task<string?> SendLoginEventAsync(string email, string password)
+    {
+        var loginPageResp = await _client.GetAsync("/login/");
+        string json = await ReadResponseAsDecompressedString(loginPageResp);
+
+        var csrfToken = ExtractCsrfToken(json);
+        if (csrfToken == null)
+        {
+            Console.WriteLine("CSRF token not found!");
+            return null;
+        }
+
+        var data = new[]
+        {
+            new KeyValuePair<string,string>("_username", email),
+            new KeyValuePair<string,string>("_password", password),
+            new KeyValuePair<string,string>("_csrf_token", csrfToken)
+        };
+
+        var content = new FormUrlEncodedContent(data);
+
+        var loginResp = await _client.PostAsync("/login_check/", content);
+        string loginHtml = await ReadResponseAsDecompressedString(loginResp);
+
+        var appResp = await _client.GetAsync("/app/");
+        string appHtml = await ReadResponseAsDecompressedString(appResp);
+
+        if (loginHtml.Contains("Panel | RCPonline") && appHtml.Contains("Panel | RCPonline"))
+        {
+            // If login successful then the returned html in both login and app endpoints
+            // is just the application itself and contains "Panel | RCPonline"
+            return appHtml;
+        }
+        else if (loginHtml.Contains("Zaloguj się w systemie rejestracji czasu pracy - RCPonline | RCPonline")
+                 && appHtml.Contains("Zaloguj się w systemie rejestracji czasu pracy - RCPonline | RCPonline"))
+        {
+            // If login unsuccessful then the returned html in both login and app endpoints
+            // is just the login view
+            return null;
+        }
+        else
+        {
+            // Sth not right, return false
+            return null;
+        }
+    }
+
+    internal async Task<bool> CheckIfWorkAlreadyStarted(string email, string password)
+    {
+        var applicationHtml = await SendLoginEventAsync(email, password);
+        if (applicationHtml == null)
+        {
+            // Login unsuccessful TODO: trzeba obsłużyć jakoś, zastanowić się, czy logowanie nie powinno być np w konstruktorze albo chociaż w innej metodzie
+            return false;
+        }
+
+        var myStatusResponse = await _client.PostAsync("/dashboard/getMyStatus/1", null);
+        string json = await ReadResponseAsDecompressedString(myStatusResponse);
+        var parsed = JsonDocument.Parse(json);
+        var rawHtml = parsed.RootElement.GetProperty("body").GetString();
+        var readableHtml = WebUtility.HtmlDecode(rawHtml);
+
+        if (readableHtml != null && (readableHtml.Contains("Na stanowisku")
+                                    || readableHtml.Contains("Praca zdalna")
+                                    || readableHtml.Contains("W terenie")))
+        {
+            // User is already at work
+            return true;
+        }
+        else if (readableHtml != null && readableHtml.Contains("Nie ma"))
+        {
+            // User is not at work
+            return false;
+        }
+        else
+        {
+            // Unexpected response TODO: trzeba obsłużyć jakoś
+            return false;
+        }
     }
 
     /// <summary>
@@ -114,10 +213,7 @@ public class RcpApiClient
     private async Task<bool> SendPostAndHandleResponseAsync(string requestUri, FormUrlEncodedContent content)
     {
         var resp = await _client.PostAsync(requestUri, content);
-        using var responseStream = await resp.Content.ReadAsStreamAsync();
-        using var decompressed = new System.IO.Compression.GZipStream(responseStream, System.IO.Compression.CompressionMode.Decompress);
-        using var reader = new StreamReader(decompressed);
-        string json = await reader.ReadToEndAsync();
+        string json = await ReadResponseAsDecompressedString(resp);
 
         if (!resp.IsSuccessStatusCode)
         {
@@ -142,5 +238,15 @@ public class RcpApiClient
                 MessageBoxIcon.Error);
         }
         return success;
+    }
+
+    // method to read response as readable json
+    private async Task<string> ReadResponseAsDecompressedString(HttpResponseMessage response)
+    {
+        using var responseStream = await response.Content.ReadAsStreamAsync();
+        using var decompressed = new System.IO.Compression.GZipStream(responseStream, System.IO.Compression.CompressionMode.Decompress);
+        using var reader = new StreamReader(decompressed);
+        string stringContent = await reader.ReadToEndAsync();
+        return stringContent;
     }
 }
