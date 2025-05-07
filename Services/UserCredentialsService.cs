@@ -9,7 +9,7 @@ namespace EasyRCP.Services;
 public static class UserCredentialsService
 {
     /// <summary>
-    /// The file path where the credentials are stored.
+    /// The file path where the credentials are stored. Should be in C:\Users\USERNAME\AppData\Roaming\EasyRCP
     /// </summary>
     private static readonly string credentialsFilePath = Path.Combine(
         Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),

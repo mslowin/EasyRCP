@@ -5,17 +5,24 @@ using System.Text.RegularExpressions;
 namespace EasyRCP.Services;
 
 /// <summary>
-/// A client for interacting with the RCP Online via api requests.
+/// A api for interacting with the RCP Online via api requests.
 /// </summary>
 public class RcpApiClient
 {
     private readonly HttpClient _client;
 
+    private readonly string _email;
+
+    private readonly string _password;
+
+    public bool LoginSuccessful { get; private set; }
+
     /// <summary>
     /// Initializes a new instance of the <see cref="RcpApiClient"/> class.
     /// </summary>
-    /// <param name="phpSessionId">The PHP session ID used for authentication.</param>
-    public RcpApiClient(string? phpSessionId = null)
+    /// <param name="email">The email of the user used to log into the RCP.</param>
+    /// <param name="password">The password of the user used to log into the RCP.</param>
+    private RcpApiClient(string email, string password)
     {
         // Cookie container handler to add PHPSESSID cookie
         var handler = new HttpClientHandler
@@ -23,12 +30,6 @@ public class RcpApiClient
             CookieContainer = new CookieContainer(),
             AllowAutoRedirect = true,
         };
-
-        if (phpSessionId != null)
-        {
-            handler.CookieContainer.Add(new Uri("https://panel.rcponline.pl"),
-                new Cookie("PHPSESSID", phpSessionId));
-        }
 
         _client = new HttpClient(handler);
         _client.BaseAddress = new Uri("https://panel.rcponline.pl");
@@ -40,6 +41,34 @@ public class RcpApiClient
         _client.DefaultRequestHeaders.UserAgent.ParseAdd("Mozilla/5.0 (Windows NT 10.0; Win64; x64)");
         _client.DefaultRequestHeaders.Referrer = new Uri("https://panel.rcponline.pl/app/zdarzenia");
         _client.DefaultRequestHeaders.Add("X-Requested-With", "XMLHttpRequest");
+
+        _email = email;
+        _password = password;
+    }
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="RcpApiClient"/> class and tries to log into the RCP.
+    /// </summary>
+    /// <param name="email">The email of the user used to log into the RCP.</param>
+    /// <param name="password">The password of the user used to log into the RCP.</param>
+    /// <returns>Created <see cref="RcpApiClient"/> object with LoginSuccessful parameter set (if true, login sucesfull; otherwise false).</returns>
+    public static async Task<RcpApiClient> CreateApiClientAsync(string email, string password)
+    {
+        var api = new RcpApiClient(email, password);
+        
+        // Application tries to log in the user every time the object is created
+        var applicationHtml = await api.SendLoginEventAsync();
+        if (applicationHtml == null)
+        {
+            // If html is null that means the login was unsuccessful
+            api.LoginSuccessful = false;
+        }
+        else
+        {
+            api.LoginSuccessful = true;
+        }
+
+        return api;
     }
 
     private string? ExtractCsrfToken(string html)
@@ -50,12 +79,10 @@ public class RcpApiClient
     }
 
     /// <summary>
-    /// Sends a start work clock event to the RCP API.
+    /// Sends a login event to the RCP that tries to log in the user.
     /// </summary>
-    /// <param name="email">The employee email.</param>
-    /// <param name="password">The employee password.</param>
     /// <returns>If login successful the application html is returned; otherwise null.</returns>
-    public async Task<string?> SendLoginEventAsync(string email, string password)
+    public async Task<string?> SendLoginEventAsync()
     {
         var loginPageResp = await _client.GetAsync("/login/");
         string json = await ReadResponseAsDecompressedString(loginPageResp);
@@ -63,14 +90,14 @@ public class RcpApiClient
         var csrfToken = ExtractCsrfToken(json);
         if (csrfToken == null)
         {
-            Console.WriteLine("CSRF token not found!");
-            return null;
+            // Will be caught in Program.cs
+            throw new InvalidOperationException("Coś poszło nie tak, nie udało się znaleźć tokenu csrf");
         }
 
         var data = new[]
         {
-            new KeyValuePair<string,string>("_username", email),
-            new KeyValuePair<string,string>("_password", password),
+            new KeyValuePair<string,string>("_username", _email),
+            new KeyValuePair<string,string>("_password", _password),
             new KeyValuePair<string,string>("_csrf_token", csrfToken)
         };
 
@@ -88,29 +115,25 @@ public class RcpApiClient
             // is just the application itself and contains "Panel | RCPonline"
             return appHtml;
         }
-        else if (loginHtml.Contains("Zaloguj się w systemie rejestracji czasu pracy - RCPonline | RCPonline")
-                 && appHtml.Contains("Zaloguj się w systemie rejestracji czasu pracy - RCPonline | RCPonline"))
+        else if (loginHtml.Contains("Zaloguj się w systemie rejestracji czasu pracy ‐ RCPonline | RCPonline")
+                 && appHtml.Contains("Zaloguj się w systemie rejestracji czasu pracy ‐ RCPonline | RCPonline"))
         {
-            // If login unsuccessful then the returned html in both login and app endpoints
-            // is just the login view
+            // If login unsuccessful then the returned html in both login and app endpoints is just the login view
             return null;
         }
         else
         {
-            // Sth not right, return false
-            return null;
+            // Sth not right, throw error, will be caught in Program.cs
+            throw new InvalidOperationException("Coś poszło nie tak, nie udało się zalogować do aplikacji");
         }
     }
 
-    internal async Task<bool> CheckIfWorkAlreadyStarted(string email, string password)
+    /// <summary>
+    /// Checks if work has already started through 'getMyStatus' endpoint of the RCP
+    /// </summary>
+    /// <returns>true if work has already started; otherwise false.</returns>
+    public async Task<bool> CheckIfWorkAlreadyStarted()
     {
-        var applicationHtml = await SendLoginEventAsync(email, password);
-        if (applicationHtml == null)
-        {
-            // Login unsuccessful TODO: trzeba obsłużyć jakoś, zastanowić się, czy logowanie nie powinno być np w konstruktorze albo chociaż w innej metodzie
-            return false;
-        }
-
         var myStatusResponse = await _client.PostAsync("/dashboard/getMyStatus/1", null);
         string json = await ReadResponseAsDecompressedString(myStatusResponse);
         var parsed = JsonDocument.Parse(json);
@@ -131,13 +154,24 @@ public class RcpApiClient
         }
         else
         {
-            // Unexpected response TODO: trzeba obsłużyć jakoś
+            // Sth not right but cannot throw error to Program.cs as this is in Polly retry policy. Needs to be handled here
+            File.AppendAllText("output.txt", $"[{DateTime.Now}] Coś poszło nie tak, nie udało się sprawdzić, czy użytkownik jest już w pracy. " +
+            $"Możliwe, że zmieniło się coś w zwracanym z /dashboard/getMyStatus/ HTMLu.\n\n");
+            MessageBox.Show(
+                "Wystąpił nieoczekiwany błąd. Szczegóły zapisano w pliku output.txt",
+                "EasyRCP - Błąd",
+                MessageBoxButtons.OK,
+                MessageBoxIcon.Error);
+            // TODO: tutaj może mail jeszcze do mnie z informacją że coś poszło komuś nie tak - komu i co poszło nie tak
+
+            // Killing the application completly because there is no reason to continue if this fails
+            Environment.Exit(1);
             return false;
         }
     }
 
     /// <summary>
-    /// Sends a start work clock event to the RCP API.
+    /// Sends a start work clock event to the RCP.
     /// </summary>
     /// <param name="empId">The employee ID.</param>
     /// <param name="zone">The zone ID.</param>
@@ -171,7 +205,7 @@ public class RcpApiClient
     }
 
     /// <summary>
-    /// Sends a project event to the API.
+    /// Sends a project event to the RCP.
     /// </summary>
     /// <param name="empId">The employee ID.</param>
     /// <param name="zone">The zone ID.</param>
@@ -217,6 +251,7 @@ public class RcpApiClient
 
         if (!resp.IsSuccessStatusCode)
         {
+            // TODO: tu może wystarczy zrobić throw do Program.cs
             File.AppendAllText("output.txt", $"[{DateTime.Now}] HTTP {(int)resp.StatusCode}: {resp.ReasonPhrase}\n{json}\n\n");
             MessageBox.Show(
                 $"Błąd, szczegóły zostały zapisane w pliku output.txt",
@@ -230,6 +265,7 @@ public class RcpApiClient
         bool success = doc.RootElement.GetProperty("success").GetBoolean();
         if (!success)
         {
+            // TODO: tu może wystarczy zrobić throw do Program.cs
             File.AppendAllText("output.txt", $"[{DateTime.Now}] API zwróciło success = false\n{json}\n\n");
             MessageBox.Show(
                 $"Błąd, szczegóły zostały zapisane w pliku output.txt",

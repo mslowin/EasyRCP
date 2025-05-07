@@ -1,9 +1,4 @@
-﻿using System.Net;
-using System.Text.Json;
-using OpenQA.Selenium;
-using OpenQA.Selenium.Chrome;
-using OpenQA.Selenium.Support.UI;
-using Polly;
+﻿using Polly;
 using Polly.Retry;
 
 namespace EasyRCP.Services;
@@ -23,14 +18,15 @@ public static class RcpAutomationService
     /// <summary>
     /// Checks if work has already started with retry logic.
     /// </summary>
+    /// <param name="api">The api to connect to RCP client.</param>
     /// <returns>true if work has already started; false if nor; null if internet connection was down the whole time.</returns>
-    public static async Task<bool?> CheckIfWorkAlreadyStartedWithRetryAsync()
+    public static async Task<bool?> CheckIfWorkAlreadyStartedWithRetryAsync(RcpApiClient api)
     {
         try
         {
             return await RetryPolicy.ExecuteAsync(async () =>
             {
-                bool result = await CheckIfWorkAlreadyStartedAsync();
+                bool result = await CheckIfWorkAlreadyStartedAsync(api);
                 return result;
             });
         }
@@ -119,30 +115,13 @@ public static class RcpAutomationService
     /// <summary>
     /// Checks if work has already started by interacting with the RCP system.
     /// </summary>
+    /// <param name="api">The api to connect to RCP client.</param>
     /// <returns>true if work has already started; otherwise, false.</returns>
-    private static Task<bool> CheckIfWorkAlreadyStartedAsync()
+    private static Task<bool> CheckIfWorkAlreadyStartedAsync(RcpApiClient api)
     {
         return Task.Run(async () =>
         {
-            // TODO: credential might need to be passed here actually
-            var credentials = UserCredentialsService.LoadCredentials();
-            
-            // TODO: the api should be initialized in the PRogram.cs ad should be passed to other methods. Alternatively a DI container should be added
-            var api = new RcpApiClient();
-
-            // TODO: do zastanowienia czy logowanie ma być w osobnej metodzie czy każda metoda w ApiClient ma najpierw logować, czy w ogóle logowanie w konstruktorze
-
-            ////string? applicationHtml = api.SendLoginEventAsync(credentials.Value.Email, credentials.Value.Password)
-            ////.Result;
-            ////if (applicationHtml == null)
-            ////{
-            ////    // Login unsuccessful
-            ////    return false;
-            ////}
-
-            // TODO: credentials cannot be null here and I think they should be passed earlier here
-            // in this method below there already is login in logic
-            bool isWorkAlreadyStarted = await api.CheckIfWorkAlreadyStarted(credentials.Value.Email, credentials.Value.Password);
+            bool isWorkAlreadyStarted = await api.CheckIfWorkAlreadyStarted();
 
             return isWorkAlreadyStarted;
         });

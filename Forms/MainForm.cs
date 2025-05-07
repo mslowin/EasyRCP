@@ -5,13 +5,20 @@ namespace EasyRCP;
 
 public partial class MainForm : Form
 {
-    private NotifyIcon trayIcon;
-    private ContextMenuStrip trayMenu;
+    private NotifyIcon _trayIcon;
+
+    private ContextMenuStrip _trayMenu;
+
+    private RcpApiClient? _apiClient;
+
+    private bool _isHidden;
 
     /// <summary>
     /// Main form is just a settings form that is hidden by default.
     /// </summary>
-    public MainForm(bool isHidden)
+    /// <param name="isHidden">Indicates if the form should be run as hidden or not.</param>
+    /// <param name="rcpApi">The api to connect to RCP client.</param>
+    public MainForm(bool isHidden, RcpApiClient? rcpApi = null)
     {
         InitializeComponent();
         this.StartPosition = FormStartPosition.CenterScreen;
@@ -22,22 +29,25 @@ public partial class MainForm : Form
             this.Visible = false;
         }
 
-        trayMenu = new ContextMenuStrip();
-        trayMenu.Items.Add("Rozpocznij pracê", null, (s, e) => StartWork());
-        trayMenu.Items.Add("Opcje", null, (s, e) => ShowSettings());
-        trayMenu.Items.Add("WyjdŸ", null, (s, e) => Environment.Exit(0));
+        _trayMenu = new ContextMenuStrip();
+        _trayMenu.Items.Add("Rozpocznij pracê", null, (s, e) => StartWork());
+        _trayMenu.Items.Add("Opcje", null, (s, e) => ShowSettings());
+        _trayMenu.Items.Add("WyjdŸ", null, (s, e) => Environment.Exit(0));
 
-        trayIcon = new NotifyIcon();
-        trayIcon.Text = "EasyRCP";
-        trayIcon.ContextMenuStrip = trayMenu;
-        trayIcon.Visible = true;
+        _trayIcon = new NotifyIcon();
+        _trayIcon.Text = "EasyRCP";
+        _trayIcon.ContextMenuStrip = _trayMenu;
+        _trayIcon.Visible = true;
         byte[] iconBytes = Properties.Resources.RcpOnlineIcon;
         using (var ms = new MemoryStream(iconBytes))
         {
-            trayIcon.Icon = new Icon(ms);
+            _trayIcon.Icon = new Icon(ms);
         }
 
-        trayIcon.DoubleClick += (s, e) => this.Show();
+        _trayIcon.DoubleClick += (s, e) => this.Show();
+
+        _isHidden = isHidden;
+        _apiClient = rcpApi;
     }
 
     private static void StartWork()
@@ -80,18 +90,37 @@ public partial class MainForm : Form
         this.ShowInTaskbar = false;
         this.Visible = false;
 
-        using var prompt = new StartWorkPromptForm();
-        if (prompt.ShowDialog() == DialogResult.Yes)
+        if (_apiClient != null)
         {
-            await RcpAutomationService.StartWorkAsync();
+            // TODO: tutaj chyba po prostu powinno wychodziæ a nie pytaæ, czy rozpocz¹æ pracê, ewentualnie sprawdzaæ, czy osoba jest na stanowisku i jeœli nie, to dopiero pytaæ
+            using var prompt = new StartWorkPromptForm();
+            if (prompt.ShowDialog() == DialogResult.Yes)
+            {
+                await RcpAutomationService.StartWorkAsync();
+            }
         }
-        ////MessageBox.Show("Dane zapisane.", "Info", MessageBoxButtons.OK, MessageBoxIcon.Information);
+        else
+        {
+            // If the _apiClient is null it just means there were no credentials and this needs to run only once and quit - returning to Program.cs
+            this.DialogResult = DialogResult.OK;
+            this.Close();
+        }
     }
 
     protected override void OnFormClosing(FormClosingEventArgs e)
     {
-        e.Cancel = true;
-        this.Hide();
+        if (_isHidden)
+        {
+            // Application should cancel the form closing only in the final (hidden) mode.
+            // The credentials dialogs (that have _isHidden false) should just close the app on the X button
+            e.Cancel = true;
+            this.Hide();
+        }
+        else
+        {
+            // Dispose the NotifyIcon to remove it from the system tray
+            _trayIcon.Dispose();
+        }
         base.OnFormClosing(e);
     }
 }
