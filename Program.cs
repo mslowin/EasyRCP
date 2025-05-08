@@ -48,7 +48,7 @@ internal static class Program
                     throw new InvalidOperationException("Coœ posz³o nie tak, nie uda³o siê za³adowaæ emailu i has³a mimo, ¿e powinny byæ ju¿ ustawione");
                 }
 
-                // Initialize the API client with the loaded credentials to comunicate with RCP system
+                // Initialize the api client with the loaded credentials to comunicate with RCP system
                 // This method also tries to log in the user
                 api = await RcpApiClient.CreateApiClientAsync(credentials.Value.Email, credentials.Value.Password);
                 if (!api.LoginSuccessful)
