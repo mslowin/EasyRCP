@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.9](https://github.com/mslowin/EasyRCP/compare/v1.0.8...v1.0.9) (2025-05-08)
+
+
+### Bug Fixes
+
+* romove unnecessary Task.Run ([a7faf6f](https://github.com/mslowin/EasyRCP/commit/a7faf6f2eb1aa1f5bda85c401a55bf4999463325))
+
 ## [1.0.8](https://github.com/mslowin/EasyRCP/compare/v1.0.7...v1.0.8) (2025-05-05)
 
 
