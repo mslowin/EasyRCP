@@ -96,7 +96,7 @@ internal static class Program
                 using var prompt = new StartWorkPromptForm();
                 if (prompt.ShowDialog() == DialogResult.Yes)
                 {
-                    await RcpAutomationService.StartWorkAsync();
+                    await RcpAutomationService.StartWorkAsync(api);
                 }
             }
 

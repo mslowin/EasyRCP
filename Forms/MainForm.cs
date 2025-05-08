@@ -17,7 +17,7 @@ public partial class MainForm : Form
     /// Main form is just a settings form that is hidden by default.
     /// </summary>
     /// <param name="isHidden">Indicates if the form should be run as hidden or not.</param>
-    /// <param name="rcpApi">The api to connect to RCP client.</param>
+    /// <param name="rcpApi">The api to connect to RCP.</param>
     public MainForm(bool isHidden, RcpApiClient? rcpApi = null)
     {
         InitializeComponent();
@@ -50,11 +50,14 @@ public partial class MainForm : Form
         _apiClient = rcpApi;
     }
 
-    private static void StartWork()
+    private void StartWork()
     {
         Task.Run(async () =>
         {
-            await RcpAutomationService.StartWorkAsync();
+            if (_apiClient != null)
+            {
+                await RcpAutomationService.StartWorkAsync(_apiClient);
+            }
         });
     }
 
@@ -92,11 +95,12 @@ public partial class MainForm : Form
 
         if (_apiClient != null)
         {
-            // TODO: tutaj chyba po prostu powinno wychodziæ a nie pytaæ, czy rozpocz¹æ pracê, ewentualnie sprawdzaæ, czy osoba jest na stanowisku i jeœli nie, to dopiero pytaæ
+            // TODO: tutaj chyba po prostu powinno wychodziæ a nie pytaæ, czy rozpocz¹æ pracê, ewentualnie sprawdzaæ,
+            // czy osoba jest na stanowisku i jeœli nie, to dopiero pytaæ! <-------------------------------------------------------------
             using var prompt = new StartWorkPromptForm();
             if (prompt.ShowDialog() == DialogResult.Yes)
             {
-                await RcpAutomationService.StartWorkAsync();
+                await RcpAutomationService.StartWorkAsync(_apiClient);
             }
         }
         else
