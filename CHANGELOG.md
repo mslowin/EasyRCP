@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.0.8](https://github.com/mslowin/EasyRCP/compare/v1.0.7...v1.0.8) (2025-05-05)
+
+
+### Features
+
+* introduce RcpApiClient for better API interaction and enhance error handling ([4acc457](https://github.com/mslowin/EasyRCP/commit/4acc4573eefea5d6e806b66eb3c69e7c6d091a19))
+
+
+### Bug Fixes
+
+* improve connection checking logic and enhance error messages with application name ([962870e](https://github.com/mslowin/EasyRCP/commit/962870e056b1c69adb53fdae0f8902677f53c330))
+
 ## [1.0.7](https://github.com/mslowin/EasyRCP/compare/v1.0.6...v1.0.7) (2025-04-28)
 
 
