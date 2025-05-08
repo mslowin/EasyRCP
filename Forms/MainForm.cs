@@ -96,7 +96,7 @@ public partial class MainForm : Form
         if (_apiClient != null)
         {
             // TODO: tutaj chyba po prostu powinno wychodziæ a nie pytaæ, czy rozpocz¹æ pracê, ewentualnie sprawdzaæ,
-            // czy osoba jest na stanowisku i jeœli nie, to dopiero pytaæ! <-------------------------------------------------------------
+            // czy osoba jest na stanowisku i jeœli nie, to dopiero pytaæ!!! <-------------------------------------------------------------
             using var prompt = new StartWorkPromptForm();
             if (prompt.ShowDialog() == DialogResult.Yes)
             {
