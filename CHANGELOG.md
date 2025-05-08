@@ -1,5 +1,21 @@
 # Changelog
 
+## [2.0.0](https://github.com/mslowin/EasyRCP/compare/v1.0.8...v2.0.0) (2025-05-08)
+
+
+### ⚠ BREAKING CHANGES
+
+* Dropped Selenium entirely in favor of HTTP-based automation.
+
+### Features
+
+* Dropped Selenium entirely in favor of HTTP-based automation. ([f745115](https://github.com/mslowin/EasyRCP/commit/f745115b29451162768c9b85ffcfc6cdcd485ddb))
+
+
+### Bug Fixes
+
+* romove unnecessary Task.Run ([a7faf6f](https://github.com/mslowin/EasyRCP/commit/a7faf6f2eb1aa1f5bda85c401a55bf4999463325))
+
 ## [1.0.8](https://github.com/mslowin/EasyRCP/compare/v1.0.7...v1.0.8) (2025-05-05)
 
 
