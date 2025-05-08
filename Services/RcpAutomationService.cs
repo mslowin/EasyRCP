@@ -95,12 +95,8 @@ public static class RcpAutomationService
     /// </summary>
     /// <param name="api">The api to connect to RCP.</param>
     /// <returns>true if work has already started; otherwise, false.</returns>
-    private static Task<bool> CheckIfWorkAlreadyStartedAsync(RcpApiClient api)
+    private static async Task<bool> CheckIfWorkAlreadyStartedAsync(RcpApiClient api)
     {
-        return Task.Run(async () =>
-        {
-            bool hasWorkAlreadyStarted = await api.CheckIfWorkAlreadyStarted();
-            return hasWorkAlreadyStarted;
-        });
+        return await api.CheckIfWorkAlreadyStarted();
     }
 }
