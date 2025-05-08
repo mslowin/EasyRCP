@@ -30,9 +30,6 @@ internal static class Program
 
                 var form = new MainForm(isHidden: false);
                 var dialogResult = form.ShowDialog(); // run as ShowDialog instead of using Application.Run so that the application comes back here once form is closed
-
-                Application.Exit();
-
                 if (dialogResult == DialogResult.Cancel)
                 {
                     // Cancelled (X button clicked) - exit the app
@@ -64,9 +61,6 @@ internal static class Program
 
                     var form = new MainForm(isHidden: false);
                     var dialogResult = form.ShowDialog(); // run as ShowDialog instead of using Application.Run so that the application comes back here once form is closed
-
-                    Application.Exit();
-
                     if (dialogResult == DialogResult.Cancel)
                     {
                         // Cancelled (X button clicked) - exit the app
