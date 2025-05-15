@@ -1,5 +1,17 @@
 # Changelog
 
+## [2.0.1](https://github.com/mslowin/EasyRCP/compare/v2.0.0...v2.0.1) (2025-05-15)
+
+
+### Features
+
+* add work status information in tray menu ([35f0af6](https://github.com/mslowin/EasyRCP/commit/35f0af6af2a6cd615ac7a60ddbee64f9a0d1873e))
+
+
+### Bug Fixes
+
+* add work status check before asking if the user wants to start work (when save clicked in credentials view) ([4d4ff08](https://github.com/mslowin/EasyRCP/commit/4d4ff084f345de30e9bbac966827c65388cc507a))
+
 ## [2.0.0](https://github.com/mslowin/EasyRCP/compare/v1.0.8...v2.0.0) (2025-05-08)
 
 
