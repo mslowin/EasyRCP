@@ -54,14 +54,21 @@ public static class RcpAutomationService
             ////    remote: 0           // 0 = work on the spot
             ////);
 
+            // TODO: wyrzucić to do osobnej metody, może do RcpApiClient (i użyć _client może po prostu)
+            using var httpClient = new HttpClient();
+            string ip = await httpClient.GetStringAsync("https://api.ipify.org");
+
+            // 0 = work on the spot, 1 = remote work
+            int remote = (ip.Trim() == "95.143.240.2") ? 0 : 1;
+
             // TODO: sprawdzić czy przypadkiem nie wystarczy wysyłać tylko project eventu, żeby rozpocząć pracę
-            // Wygląda na to że serio wystarczy wysłać tylko project event xD
+            // TODO: wygląda na to że serio wystarczy wysłać tylko project event xD, ale posprawdzać i tak
             bool wasProjectChangeRegistered = await api.SendProjectEventAsync(
                 empId: 0,           // as above the empId is not needed here at all
                 zone: 2,
-                eventTypeId: 1,     // 1 = start of the work (this value seems out of place here but just to be sure) 
+                eventTypeId: 1,     // 1 = start of the work
                 project: "01 Administracja",
-                remote: 0           // 0 = work on the spot (same as eventTypeId)
+                remote: remote
             );
 
             if (/*!wasStartWorkRegistered || */!wasProjectChangeRegistered)
@@ -85,6 +92,57 @@ public static class RcpAutomationService
             File.AppendAllText("output.txt", $"[{DateTime.Now}] {ex}\n\n");
             MessageBox.Show(
                 "Wystąpił nieoczekiwany błąd, nie udało się zarejestrować początku pracy. Szczegóły błędu zapisano w pliku output.txt",
+                "EasyRCP - Błąd",
+                MessageBoxButtons.OK,
+                MessageBoxIcon.Error);
+        }
+    }
+
+    /// <summary>
+    /// Ends work by interacting with the RCP system.
+    /// </summary>
+    /// <param name="api">The api to connect to RCP.</param>
+    public static async Task EndWork(RcpApiClient api)
+    {
+        try
+        {
+            // TODO: wyrzucić to do osobnej metody, może do RcpApiClient (i użyć _client może po prostu)
+            // TODO: bardzo prawdopodobne, że to nie jest potrzebne tutaj, ale sprawdzić lepiej
+            using var httpClient = new HttpClient();
+            string ip = await httpClient.GetStringAsync("https://api.ipify.org");
+
+            // 0 = work on the spot, 1 = remote work
+            int remote = (ip.Trim() == "95.143.240.2") ? 0 : 1;
+
+            bool wasEndWorkRegistered = await api.SendClockEventAsync(
+                empId: 0,           // empId is not needed here at all
+                zone: 2,
+                eventTypeId: 6,     // 6 = end of the work
+                project: "01 Administracja",
+                remote: remote
+            );
+
+            if (!wasEndWorkRegistered)
+            {
+                // messagebox handling is done in the api class so here we just return
+                return;
+            }
+
+            MessageBox.Show(
+                $"Zarejestrowano koniec pracy w systemie RCP",
+                "EasyRCP - Sukces",
+                MessageBoxButtons.OK,
+                MessageBoxIcon.Information);
+        }
+        catch (Exception ex)
+        {
+            // TODO: error handling jest w PRogram.cs - sprawdzić, czy bez try catcha tutaj będą ładnie szły błędy do
+            // Program.cs właśnie w każdym przypadku (zarówno z metody wywoływanej w Program.cs, jak i z opcji w tray menu)
+
+            // TODO: tutaj może mail jeszcze do mnie z informacją że coś poszło komuś nie tak - komu i co poszło nie tak
+            File.AppendAllText("output.txt", $"[{DateTime.Now}] {ex}\n\n");
+            MessageBox.Show(
+                "Wystąpił nieoczekiwany błąd, nie udało się zarejestrować końca pracy. Szczegóły błędu zapisano w pliku output.txt",
                 "EasyRCP - Błąd",
                 MessageBoxButtons.OK,
                 MessageBoxIcon.Error);
