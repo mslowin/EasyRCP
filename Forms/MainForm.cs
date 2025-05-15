@@ -180,10 +180,14 @@ public partial class MainForm : Form
 
         if (_apiClient != null)
         {
-            using var prompt = new StartWorkPromptForm();
-            if (prompt.ShowDialog() == DialogResult.Yes)
+            bool isWorking = await RcpAutomationService.CheckIfWorkAlreadyStartedAsync(_apiClient);
+            if (!isWorking)
             {
-                await RcpAutomationService.StartWorkAsync(_apiClient);
+                using var prompt = new StartWorkPromptForm();
+                if (prompt.ShowDialog() == DialogResult.Yes)
+                {
+                    await RcpAutomationService.StartWorkAsync(_apiClient);
+                }
             }
         }
         else
