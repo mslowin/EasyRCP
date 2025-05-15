@@ -46,15 +46,16 @@ public static class RcpAutomationService
     {
         try
         {
-            bool wasStartWorkRegistered = await api.SendClockEventAsync(
-                empId: 0,           // it turns out that the empId is not needed at all. Propably PHPSESSID cookie does the job
-                zone: 2,
-                eventTypeId: 1,     // 1 = start of the work
-                project: "",
-                remote: 0           // 0 = work on the spot
-            );
-            
+            ////bool wasStartWorkRegistered = await api.SendClockEventAsync(
+            ////    empId: 0,           // it turns out that the empId is not needed at all. Propably PHPSESSID cookie does the job
+            ////    zone: 2,
+            ////    eventTypeId: 1,     // 1 = start of the work
+            ////    project: "",
+            ////    remote: 0           // 0 = work on the spot
+            ////);
+
             // TODO: sprawdzić czy przypadkiem nie wystarczy wysyłać tylko project eventu, żeby rozpocząć pracę
+            // Wygląda na to że serio wystarczy wysłać tylko project event xD
             bool wasProjectChangeRegistered = await api.SendProjectEventAsync(
                 empId: 0,           // as above the empId is not needed here at all
                 zone: 2,
@@ -63,7 +64,7 @@ public static class RcpAutomationService
                 remote: 0           // 0 = work on the spot (same as eventTypeId)
             );
 
-            if (!wasStartWorkRegistered || !wasProjectChangeRegistered)
+            if (/*!wasStartWorkRegistered || */!wasProjectChangeRegistered)
             {
                 // messagebox handling is done in the api class so here we just return
                 return;
@@ -95,8 +96,17 @@ public static class RcpAutomationService
     /// </summary>
     /// <param name="api">The api to connect to RCP.</param>
     /// <returns>true if work has already started; otherwise, false.</returns>
-    private static async Task<bool> CheckIfWorkAlreadyStartedAsync(RcpApiClient api)
+    public static async Task<bool> CheckIfWorkAlreadyStartedAsync(RcpApiClient api)
     {
         return await api.CheckIfWorkAlreadyStarted();
+    }
+
+    /// <summary>
+    /// Gets users last activity by interacting with the RCP system.
+    /// </summary>
+    /// <returns>DateTime of the last activity time.</returns>
+    public static async Task<DateTime?> GetLatestActivityAsync(RcpApiClient api)
+    {
+        return await api.GetLatestActivity();
     }
 }

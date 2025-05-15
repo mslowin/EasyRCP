@@ -1,4 +1,5 @@
-﻿using System.Net;
+﻿using System.Globalization;
+using System.Net;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 
@@ -129,7 +130,7 @@ public class RcpApiClient
     }
 
     /// <summary>
-    /// Checks if work has already started through 'getMyStatus' endpoint of the RCP
+    /// Checks if work has already started through 'getMyStatus' endpoint of the RCP.
     /// </summary>
     /// <returns>true if work has already started; otherwise false.</returns>
     public async Task<bool> CheckIfWorkAlreadyStarted()
@@ -168,6 +169,27 @@ public class RcpApiClient
             Environment.Exit(1);
             return false;
         }
+    }
+
+    /// <summary>
+    /// Gets users last activity through 'getMyStatus' endpoint of the RCP.
+    /// </summary>
+    /// <returns>DateTime of the last activity time.</returns>
+    public async Task<DateTime?> GetLatestActivity()
+    {
+        var myStatusResponse = await _client.PostAsync("/dashboard/getMyStatus/1", null);
+        string json = await ReadResponseAsDecompressedString(myStatusResponse);
+        var parsed = JsonDocument.Parse(json);
+        var rawHtml = parsed.RootElement.GetProperty("body").GetString();
+        var readableHtml = WebUtility.HtmlDecode(rawHtml);
+
+        var match = Regex.Match(readableHtml, @"Ostatnia aktywność:</a><h3 class=""mb-2"">\s*Dzisiaj\s*(\d{2}:\d{2})\s*</h3>");
+        if (match.Success && TimeSpan.TryParse(match.Groups[1].Value, CultureInfo.InvariantCulture, out var time))
+        {
+            var today = DateTime.Today.Add(time);
+            return today;
+        }
+        return null;
     }
 
     /// <summary>

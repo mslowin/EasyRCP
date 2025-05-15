@@ -1,17 +1,36 @@
 using EasyRCP.Forms;
 using EasyRCP.Services;
+using Timer = System.Windows.Forms.Timer;
 
 namespace EasyRCP;
 
 public partial class MainForm : Form
 {
-    private NotifyIcon _trayIcon;
+    private RcpApiClient? _apiClient;
+    private bool _isHidden;
 
+    private NotifyIcon _trayIcon;
     private ContextMenuStrip _trayMenu;
 
-    private RcpApiClient? _apiClient;
+    /// <summary>
+    /// The label in the tray menu that displays the current work status.
+    /// </summary>
+    private ToolStripLabel _statusLabel;
 
-    private bool _isHidden;
+    /// <summary>
+    /// The menu item in the tray menu that allows the user to start work.
+    /// </summary>
+    private ToolStripMenuItem _startWorkMenuItem;
+
+    /// <summary>
+    /// Timer used to update the elapsed work time in the tray menu.
+    /// </summary>
+    private Timer _workTimer;
+
+    /// <summary>
+    /// The timestamp representing when the work started.
+    /// </summary>
+    private DateTime? _workStartTime;
 
     /// <summary>
     /// Main form is just a settings form that is hidden by default.
@@ -30,10 +49,21 @@ public partial class MainForm : Form
         }
 
         _trayMenu = new ContextMenuStrip();
-        _trayMenu.Items.Add("Rozpocznij pracê", null, (s, e) => StartWork());
+
+        // tekst na górze czy praca rejestrowana, czy nie
+        _statusLabel = new ToolStripLabel();
+        _statusLabel.ForeColor = Color.Green;
+        _statusLabel.Font = new Font(_statusLabel.Font, FontStyle.Bold);
+        _trayMenu.Items.Add(_statusLabel);
+        _trayMenu.Items.Add(new ToolStripSeparator());
+
+        // przyciski w trayu
+        _startWorkMenuItem = new ToolStripMenuItem("Rozpocznij pracê", null, (s, e) => StartWork());
+        _trayMenu.Items.Add(_startWorkMenuItem);
         _trayMenu.Items.Add("Opcje", null, (s, e) => ShowSettings());
         _trayMenu.Items.Add("WyjdŸ", null, (s, e) => Environment.Exit(0));
 
+        // Ikona/przycisk w trayu
         _trayIcon = new NotifyIcon();
         _trayIcon.Text = "EasyRCP";
         _trayIcon.ContextMenuStrip = _trayMenu;
@@ -46,8 +76,19 @@ public partial class MainForm : Form
 
         _trayIcon.DoubleClick += (s, e) => this.Show();
 
+        // timer do zliczania czasu pracy
+        _workTimer = new Timer();
+        _workTimer.Interval = 1000;
+        _workTimer.Tick += WorkTimer_Tick;
+
         _isHidden = isHidden;
         _apiClient = rcpApi;
+    }
+
+    protected override async void OnLoad(EventArgs e)
+    {
+        base.OnLoad(e);
+        await UpdateWorkStatusAsync();
     }
 
     private void StartWork()
@@ -76,9 +117,53 @@ public partial class MainForm : Form
         }));
     }
 
+    /// <summary>
+    /// Checks if the work has already started and updates tray items accordingly.
+    /// </summary>
+    private async Task UpdateWorkStatusAsync()
+    {
+        if (_apiClient == null)
+            return;
+
+        bool isWorking = await RcpAutomationService.CheckIfWorkAlreadyStartedAsync(_apiClient);
+
+        _startWorkMenuItem.Visible = !isWorking;
+
+        if (isWorking)
+        {
+            _statusLabel.ForeColor = Color.Green;
+            var latestActivity = await RcpAutomationService.GetLatestActivityAsync(_apiClient);
+            if (latestActivity.HasValue)
+            {
+                _workStartTime = latestActivity.Value;
+                _workTimer.Start();
+            }
+            else
+            {
+                _statusLabel.Text = "Czas pracy jest rejestrowany";
+                _workTimer.Stop();
+            }
+        }
+        else
+        {
+            _statusLabel.ForeColor = Color.Red;
+            _statusLabel.Text = "Czas pracy nie jest rejestrowany";
+            _workTimer.Stop();
+        }
+    }
+
+    private void WorkTimer_Tick(object? sender, EventArgs e)
+    {
+        if (_workStartTime.HasValue)
+        {
+            var elapsed = DateTime.UtcNow - _workStartTime.Value.ToUniversalTime();
+            _statusLabel.Text = $"Czas pracy jest rejestrowany {elapsed:hh\\:mm\\:ss}";
+        }
+    }
+
     private async void ButtonSave_Click(object sender, EventArgs e)
     {
-        if(string.IsNullOrEmpty(textEmail.Text) || string.IsNullOrEmpty(textPassword.Text))
+        if (string.IsNullOrEmpty(textEmail.Text) || string.IsNullOrEmpty(textPassword.Text))
         {
             MessageBox.Show(
                 "Dane logowania nie mog¹ byæ puste.",
@@ -95,12 +180,14 @@ public partial class MainForm : Form
 
         if (_apiClient != null)
         {
-            // TODO: tutaj chyba po prostu powinno wychodziæ a nie pytaæ, czy rozpocz¹æ pracê, ewentualnie sprawdzaæ,
-            // czy osoba jest na stanowisku i jeœli nie, to dopiero pytaæ!!! <-------------------------------------------------------------
-            using var prompt = new StartWorkPromptForm();
-            if (prompt.ShowDialog() == DialogResult.Yes)
+            bool isWorking = await RcpAutomationService.CheckIfWorkAlreadyStartedAsync(_apiClient);
+            if (!isWorking)
             {
-                await RcpAutomationService.StartWorkAsync(_apiClient);
+                using var prompt = new StartWorkPromptForm();
+                if (prompt.ShowDialog() == DialogResult.Yes)
+                {
+                    await RcpAutomationService.StartWorkAsync(_apiClient);
+                }
             }
         }
         else
