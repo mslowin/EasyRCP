@@ -46,13 +46,13 @@ public static class RcpAutomationService
     {
         try
         {
-            ////bool wasStartWorkRegistered = await api.SendClockEventAsync(
-            ////    empId: 0,           // it turns out that the empId is not needed at all. Propably PHPSESSID cookie does the job
-            ////    zone: 2,
-            ////    eventTypeId: 1,     // 1 = start of the work
-            ////    project: "",
-            ////    remote: 0           // 0 = work on the spot
-            ////);
+            bool wasStartWorkRegistered = await api.SendClockEventAsync(
+                empId: 0,           // it turns out that the empId is not needed at all. Propably PHPSESSID cookie does the job
+                zone: 2,
+                eventTypeId: 1,     // 1 = start of the work
+                project: "",
+                remote: 0           // 0 = work on the spot
+            );
 
             // TODO: wyrzucić to do osobnej metody, może do RcpApiClient (i użyć _client może po prostu)
             using var httpClient = new HttpClient();
@@ -71,7 +71,7 @@ public static class RcpAutomationService
                 remote: remote
             );
 
-            if (/*!wasStartWorkRegistered || */!wasProjectChangeRegistered)
+            if (!wasStartWorkRegistered || !wasProjectChangeRegistered)
             {
                 // messagebox handling is done in the api class so here we just return
                 return;
