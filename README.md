@@ -6,3 +6,4 @@ CredentialsForm będzie odpalane jako dialog i będzie służyć tylko do wpisyw
 MainForm będzie jako Application Run i to będzie wiecznie ukryte okno, które będzie miało w tray'u wszystkie przyciski <br />
 TODO3: Pozbierać wszystkie try catche, żeby rzucały wyjątki do Program.cs <br />
 TODO4: Dodać przycisk "Zakończ pracę" <br />
+TODO5: przenieś adresy URL systemu rcp do pliku konfiguracyjnego albo zmiennej środowiskowej <br />
