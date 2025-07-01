@@ -23,6 +23,11 @@ public partial class MainForm : Form
     private ToolStripMenuItem _startWorkMenuItem;
 
     /// <summary>
+    /// The menu item in the tray menu that allows the user to end already started work.
+    /// </summary>
+    private ToolStripMenuItem _endWorkMenuItem;
+
+    /// <summary>
     /// Timer used to update the elapsed work time in the tray menu.
     /// </summary>
     private Timer _workTimer;
@@ -58,8 +63,12 @@ public partial class MainForm : Form
         _trayMenu.Items.Add(new ToolStripSeparator());
 
         // przyciski w trayu
-        _startWorkMenuItem = new ToolStripMenuItem("Rozpocznij pracê", null, (s, e) => StartWork());
+        _startWorkMenuItem = new ToolStripMenuItem("Rozpocznij pracê", null, async (s, e) => await StartWork());
+        _startWorkMenuItem.ForeColor = Color.Green;
         _trayMenu.Items.Add(_startWorkMenuItem);
+        _endWorkMenuItem = new ToolStripMenuItem("Zakoñcz pracê", null, async (s, e) => await EndWork());
+        _endWorkMenuItem.ForeColor = Color.Red;
+        _trayMenu.Items.Add(_endWorkMenuItem);
         _trayMenu.Items.Add("Opcje", null, (s, e) => ShowSettings());
         _trayMenu.Items.Add("WyjdŸ", null, (s, e) => Environment.Exit(0));
 
@@ -91,15 +100,22 @@ public partial class MainForm : Form
         await UpdateWorkStatusAsync();
     }
 
-    private void StartWork()
+    private async Task StartWork()
     {
-        Task.Run(async () =>
+        if (_apiClient != null)
         {
-            if (_apiClient != null)
-            {
-                await RcpAutomationService.StartWorkAsync(_apiClient);
-            }
-        });
+            await RcpAutomationService.StartWorkAsync(_apiClient);
+            await UpdateWorkStatusAsync(true);
+        }
+    }
+
+    private async Task EndWork()
+    {
+        if (_apiClient != null)
+        {
+            await RcpAutomationService.EndWork(_apiClient);
+            await UpdateWorkStatusAsync(false);
+        }
     }
 
     private void ShowSettings()
@@ -120,16 +136,21 @@ public partial class MainForm : Form
     /// <summary>
     /// Checks if the work has already started and updates tray items accordingly.
     /// </summary>
-    private async Task UpdateWorkStatusAsync()
+    /// <param name="isWorking">Optional bool, if it is provided, the method will not check for work status in RCP system.</param>
+    private async Task UpdateWorkStatusAsync(bool? isWorking = null)
     {
         if (_apiClient == null)
             return;
 
-        bool isWorking = await RcpAutomationService.CheckIfWorkAlreadyStartedAsync(_apiClient);
+        if (isWorking == null)
+        {
+            isWorking = await RcpAutomationService.CheckIfWorkAlreadyStartedAsync(_apiClient);
+        }
 
-        _startWorkMenuItem.Visible = !isWorking;
+        _startWorkMenuItem.Visible = !isWorking.GetValueOrDefault();
+        _endWorkMenuItem.Visible = isWorking.GetValueOrDefault();
 
-        if (isWorking)
+        if (isWorking.GetValueOrDefault())
         {
             _statusLabel.ForeColor = Color.Green;
             var latestActivity = await RcpAutomationService.GetLatestActivityAsync(_apiClient);
