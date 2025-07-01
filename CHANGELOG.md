@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.0.2](https://github.com/mslowin/EasyRCP/compare/v2.0.1...v2.0.2) (2025-07-01)
+
+
+### Features
+
+* add end work functionality, improve status updates and add ip address check to see if the work is remote ([28e0509](https://github.com/mslowin/EasyRCP/commit/28e0509a6c4b44cdfb75cf455aba36946ebb8c84))
+
 ## [2.0.1](https://github.com/mslowin/EasyRCP/compare/v2.0.0...v2.0.1) (2025-05-15)
 
 
