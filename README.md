@@ -6,4 +6,16 @@ CredentialsForm będzie odpalane jako dialog i będzie służyć tylko do wpisyw
 MainForm będzie jako Application Run i to będzie wiecznie ukryte okno, które będzie miało w tray'u wszystkie przyciski <br />
 TODO3: Pozbierać wszystkie try catche, żeby rzucały wyjątki do Program.cs <br />
 TODO4: Dodać polski język gdzieś w GHAction, bo sądziwne znaczki <br />
-TODO4: Dodać przycisk "Zakończ pracę" <br />
+
+# Automatyczna aktualizacja aplikacji przez GitHub Releases
+
+Aplikacja automatycznie sprawdza dostępność nowej wersji na podstawie najnowszego releasu w repozytorium GitHub. 
+Kolejne wydania aplikacji są tworzone i oznaczane tagami przez narzędzie **release-please**,  
+a wersjonowanie zarządzane jest przez narzędzie **MinVer**.
+
+Mechanizm aktualizacji:
+
+- Pobierany jest tag najnowszego release'u z GitHuba i porównywany z aktualną wersją aplikacji zarządzaną przez MinVer.
+- Jeśli dostępna jest nowsza wersja, aplikacja pobiera nowy plik `EasyRCP.exe` pod nazwą `EasyRCP_new.exe`.
+- Tworzy się i uruchamiany skrypt `update.bat`, który zatrzymuje działającą aplikację, usuwa stary plik, zamienia nowy na oryginalny i uruchamia aplikację ponownie.
+- Skrypt jest usuwany po wykonaniu, aby nie pozostawiać niepotrzebnych plików.

@@ -9,6 +9,14 @@
     <ApplicationIcon>RcpOnlineIcon.ico</ApplicationIcon>
   </PropertyGroup>
 
+  <PropertyGroup>
+    <NeutralLanguage>pl-PL</NeutralLanguage>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <MinVerTagPrefix>v</MinVerTagPrefix> <!-- Używane przez release-please -->
+  </PropertyGroup>
+
   <ItemGroup>
     <None Remove="RcpOnline.ico" />
     <None Remove="Resources\RcpOnlineIcon.ico" />
@@ -29,6 +37,10 @@
     
   <ItemGroup>
     <PackageReference Include="DotNetSeleniumExtras.WaitHelpers" Version="3.11.0" />
+    <PackageReference Include="MinVer" Version="6.0.0">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
     <PackageReference Include="Polly" Version="8.5.2" />
     <PackageReference Include="Selenium.Support" Version="4.31.0" />
     <PackageReference Include="Selenium.WebDriver" Version="4.31.0" />

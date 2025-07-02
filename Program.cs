@@ -3,6 +3,7 @@ using EasyRCP.Services;
 using Microsoft.Win32;
 
 namespace EasyRCP;
+
 internal static class Program
 {
     /// <summary>
@@ -13,6 +14,9 @@ internal static class Program
     {
         try
         {
+            // Check for new application version and apply it if available
+            await GitHubUpdater.CheckVersionAndUpdateApplicationAsync();
+
             // To customize application configuration such as set high DPI settings or default font,
             // see https://aka.ms/applicationconfiguration.
             AddApplicationToStartup();
