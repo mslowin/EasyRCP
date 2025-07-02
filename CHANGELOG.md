@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.0.3](https://github.com/mslowin/EasyRCP/compare/v2.0.2...v2.0.3) (2025-07-02)
+
+
+### Features
+
+* Add automatic update functionality. Implement GitHub updater, add MinVer for versioning ([ddf59c8](https://github.com/mslowin/EasyRCP/commit/ddf59c87f6aac322646e0f7b4a44efe9c094348f))
+
 ## [2.0.2](https://github.com/mslowin/EasyRCP/compare/v2.0.1...v2.0.2) (2025-07-01)
 
 
