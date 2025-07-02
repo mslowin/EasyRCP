@@ -183,12 +183,18 @@ public class RcpApiClient
         var rawHtml = parsed.RootElement.GetProperty("body").GetString();
         var readableHtml = WebUtility.HtmlDecode(rawHtml);
 
+        if (readableHtml == null)
+        {
+            return null;
+        }
+
         var match = Regex.Match(readableHtml, @"Ostatnia aktywność:</a><h3 class=""mb-2"">\s*Dzisiaj\s*(\d{2}:\d{2})\s*</h3>");
         if (match.Success && TimeSpan.TryParse(match.Groups[1].Value, CultureInfo.InvariantCulture, out var time))
         {
             var today = DateTime.Today.Add(time);
             return today;
         }
+
         return null;
     }
 
