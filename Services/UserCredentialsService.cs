@@ -45,14 +45,18 @@ public static class UserCredentialsService
     public static (string Email, string Password)? LoadCredentials()
     {
         if (!File.Exists(credentialsFilePath))
+        {
             return null;
+        }
 
         var encrypted = File.ReadAllBytes(credentialsFilePath);
         var decrypted = ProtectedData.Unprotect(encrypted, null, DataProtectionScope.CurrentUser);
         var combined = Encoding.UTF8.GetString(decrypted);
         var parts = combined.Split('|');
         if (parts.Length == 2)
+        {
             return (parts[0], parts[1]);
+        }
 
         return null;
     }

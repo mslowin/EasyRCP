@@ -3,6 +3,9 @@ using Polly.Retry;
 
 namespace EasyRCP.Services;
 
+/// <summary>
+/// Provides automation services for interacting with the RCP system, including work start/end registration and status checks.
+/// </summary>
 public static class RcpAutomationService
 {
     private static readonly AsyncRetryPolicy RetryPolicy = Policy
