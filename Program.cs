@@ -13,10 +13,6 @@ internal static class Program
     [STAThread]
     static async Task Main()
     {
-        // TODO: usunąć to i sprawdzić czy będą działać polskie znaki
-        Thread.CurrentThread.CurrentCulture = new CultureInfo("pl-PL");
-        Thread.CurrentThread.CurrentUICulture = new CultureInfo("pl-PL");
-
         try
         {
             // Check for new application version and apply it if available
