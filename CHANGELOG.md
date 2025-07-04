@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.0.5](https://github.com/mslowin/EasyRCP/compare/v2.0.4...v2.0.5) (2025-07-04)
+
+
+### Bug Fixes
+
+* fix polisch characters ([602e74d](https://github.com/mslowin/EasyRCP/commit/602e74db4e319c8e01f9c4b4fa6460fa5698a6e1))
+
 ## [2.0.4](https://github.com/mslowin/EasyRCP/compare/v2.0.3...v2.0.4) (2025-07-04)
 
 
