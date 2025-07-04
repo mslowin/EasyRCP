@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.0.11](https://github.com/mslowin/EasyRCP/compare/v2.0.10...v2.0.11) (2025-07-04)
+
+
+### Bug Fixes
+
+* fix polich characters ([473ca60](https://github.com/mslowin/EasyRCP/commit/473ca6073986cb85632ccff581c1cb244f29ea1a))
+
 ## [2.0.10](https://github.com/mslowin/EasyRCP/compare/v2.0.9...v2.0.10) (2025-07-04)
 
 
