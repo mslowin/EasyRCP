@@ -10,6 +10,8 @@
     <InvariantGlobalization>false</InvariantGlobalization>
     <RuntimeIdentifier>win-x64</RuntimeIdentifier>
     <SelfContained>true</SelfContained>
+    <Utf8Output>true</Utf8Output>
+    <FileEncoding>UTF-8</FileEncoding>
   </PropertyGroup>
 
   <PropertyGroup>
