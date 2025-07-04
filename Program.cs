@@ -1,3 +1,4 @@
+using System.Globalization;
 using EasyRCP.Forms;
 using EasyRCP.Services;
 using Microsoft.Win32;
@@ -12,6 +13,9 @@ internal static class Program
     [STAThread]
     static async Task Main()
     {
+        Thread.CurrentThread.CurrentCulture = new CultureInfo("pl-PL");
+        Thread.CurrentThread.CurrentUICulture = new CultureInfo("pl-PL");
+
         try
         {
             // Check for new application version and apply it if available
