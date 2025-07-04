@@ -16,6 +16,9 @@ public class RcpApiClient
 
     private readonly string _password;
 
+    /// <summary>
+    /// Gets a value indicating whether the login was successful.
+    /// </summary>
     public bool LoginSuccessful { get; private set; }
 
     /// <summary>

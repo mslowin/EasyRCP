@@ -77,8 +77,8 @@ public static class GitHubUpdater
                 "EasyRCP - Aktualizacja zakończona",
                 MessageBoxButtons.OK,
                 MessageBoxIcon.Information);
-            File.Delete("update.bat");
 
+            File.Delete("update.bat");
             return true;
         }
 
