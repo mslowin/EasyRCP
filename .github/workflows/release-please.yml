@@ -1,14 +1,12 @@
-name: Release Please
 
+name: Release Please
 on:
   push:
     branches:
       - master
-
 permissions:
   contents: write
   pull-requests: write
-
 jobs:
   release-please:
     runs-on: ubuntu-latest
@@ -30,21 +28,45 @@ jobs:
     runs-on: windows-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           ref: ${{ needs.release-please.outputs.tag_name }}
+          fetch-depth: 0
+          
+      - name: Configure git for UTF-8
+        run: |
+          git config --global core.quotepath false
+          git config --global core.autocrlf false
+          git config --global core.safecrlf false
+        shell: pwsh
+          
+      - name: Check file encoding and content
+        run: |
+          Get-ChildItem -Path . -Filter "*.cs" -Recurse | ForEach-Object {
+            Write-Host "File: $($_.FullName)"
+            $content = Get-Content $_.FullName -Raw -Encoding UTF8
+            if ($content -match '[ąćęłńóśźżĄĆĘŁŃÓŚŹŻ]') {
+              Write-Host "Found Polish characters in: $($_.FullName)"
+              Write-Host "Content preview: $($content.Substring(0, [Math]::Min(200, $content.Length)))"
+            }
+            Write-Host "---"
+          }
+        shell: pwsh
+
+      - name: Set UTF-8 encoding
+        run: |
+          $PSDefaultParameterValues['Out-File:Encoding'] = 'utf8'
+          $PSDefaultParameterValues['*:Encoding'] = 'utf8'
+          [Console]::OutputEncoding = [System.Text.Encoding]::UTF8
+          [Console]::InputEncoding = [System.Text.Encoding]::UTF8
+          $env:DOTNET_SYSTEM_GLOBALIZATION_INVARIANT = "false"
+        shell: pwsh
           
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '9.0.x'
           
-      - name: Set encoding
-        run: |
-          [Console]::OutputEncoding = [System.Text.Encoding]::UTF8
-          $env:DOTNET_SYSTEM_GLOBALIZATION_INVARIANT = "false"
-        shell: pwsh
-        
       - name: Restore dependencies
         run: dotnet restore
         env:
@@ -54,6 +76,15 @@ jobs:
         run: dotnet publish EasyRCP.csproj -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -p:InvariantGlobalization=false -o publish
         env:
           DOTNET_SYSTEM_GLOBALIZATION_INVARIANT: false
+        
+      - name: Test published app encoding
+        run: |
+          Write-Host "Checking published files..."
+          Get-ChildItem -Path publish -Filter "*.exe" | ForEach-Object {
+            Write-Host "Published executable: $($_.FullName)"
+            Write-Host "Size: $($_.Length) bytes"
+          }
+        shell: pwsh
         
       - name: Upload Release Asset
         uses: softprops/action-gh-release@v2
