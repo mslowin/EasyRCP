@@ -1,4 +1,4 @@
-using EasyRCP.Forms;
+ï»¿using EasyRCP.Forms;
 using EasyRCP.Services;
 using Timer = System.Windows.Forms.Timer;
 
@@ -55,7 +55,7 @@ public partial class MainForm : Form
 
         _trayMenu = new ContextMenuStrip();
 
-        // tekst na górze czy praca rejestrowana, czy nie
+        // tekst na gÃ³rze czy praca rejestrowana, czy nie
         _statusLabel = new ToolStripLabel();
         _statusLabel.ForeColor = Color.Green;
         _statusLabel.Font = new Font(_statusLabel.Font, FontStyle.Bold);
@@ -63,14 +63,14 @@ public partial class MainForm : Form
         _trayMenu.Items.Add(new ToolStripSeparator());
 
         // przyciski w trayu
-        _startWorkMenuItem = new ToolStripMenuItem("Rozpocznij pracê", null, async (s, e) => await StartWork());
+        _startWorkMenuItem = new ToolStripMenuItem("Rozpocznij pracÄ™", null, async (s, e) => await StartWork());
         _startWorkMenuItem.ForeColor = Color.Green;
         _trayMenu.Items.Add(_startWorkMenuItem);
-        _endWorkMenuItem = new ToolStripMenuItem("Zakoñcz pracê", null, async (s, e) => await EndWork());
+        _endWorkMenuItem = new ToolStripMenuItem("ZakoÅ„cz pracÄ™", null, async (s, e) => await EndWork());
         _endWorkMenuItem.ForeColor = Color.Red;
         _trayMenu.Items.Add(_endWorkMenuItem);
         _trayMenu.Items.Add("Opcje", null, (s, e) => ShowSettings());
-        _trayMenu.Items.Add("WyjdŸ", null, (s, e) => Environment.Exit(0));
+        _trayMenu.Items.Add("WyjdÅº", null, (s, e) => Environment.Exit(0));
 
         // Ikona/przycisk w trayu
         _trayIcon = new NotifyIcon();
@@ -140,7 +140,9 @@ public partial class MainForm : Form
     private async Task UpdateWorkStatusAsync(bool? isWorking = null)
     {
         if (_apiClient == null)
+        {
             return;
+        }
 
         if (isWorking == null)
         {
@@ -187,8 +189,8 @@ public partial class MainForm : Form
         if (string.IsNullOrEmpty(textEmail.Text) || string.IsNullOrEmpty(textPassword.Text))
         {
             MessageBox.Show(
-                "Dane logowania nie mog¹ byæ puste.",
-                "EasyRCP - B³¹d",
+                "Dane logowania nie mogÄ… byÄ‡ puste.",
+                "EasyRCP - BÅ‚Ä…d",
                 MessageBoxButtons.OK,
                 MessageBoxIcon.Error);
             return;

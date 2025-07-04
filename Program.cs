@@ -1,4 +1,4 @@
-using System.Globalization;
+ï»¿using System.Globalization;
 using EasyRCP.Forms;
 using EasyRCP.Services;
 using Microsoft.Win32;
@@ -30,8 +30,8 @@ internal static class Program
             if (credentials == null || string.IsNullOrEmpty(credentials.Value.Email) || string.IsNullOrEmpty(credentials.Value.Password))
             {
                 MessageBox.Show(
-                    "Brak loginu i has³a, proszê nacisn¹æ OK i uzupe³niæ dane.",
-                    "EasyRCP - Brak loginu i has³a",
+                    "Brak loginu i hasÅ‚a, proszÄ™ nacisnÄ…Ä‡ OK i uzupeÅ‚niÄ‡ dane.",
+                    "EasyRCP - Brak loginu i hasÅ‚a",
                     MessageBoxButtons.OK,
                     MessageBoxIcon.Information);
 
@@ -53,7 +53,7 @@ internal static class Program
                 credentials = UserCredentialsService.LoadCredentials();
                 if (credentials == null || string.IsNullOrEmpty(credentials.Value.Email) || string.IsNullOrEmpty(credentials.Value.Password))
                 {
-                    throw new InvalidOperationException("Coœ posz³o nie tak, nie uda³o siê za³adowaæ emailu i has³a mimo, ¿e powinny byæ ju¿ ustawione");
+                    throw new InvalidOperationException("CoÅ› poszÅ‚o nie tak, nie udaÅ‚o siÄ™ zaÅ‚adowaÄ‡ emailu i hasÅ‚a mimo, Å¼e powinny byÄ‡ juÅ¼ ustawione");
                 }
 
                 // Initialize the api client with the loaded credentials to comunicate with RCP system
@@ -62,8 +62,8 @@ internal static class Program
                 if (!api.LoginSuccessful)
                 {
                     MessageBox.Show(
-                        "Nie uda³o siê zalogowaæ do aplikacji - b³êdny email lub has³o. Proszê nacisn¹æ OK i spróbowaæ ponownie.",
-                        "EasyRCP - B³¹d",
+                        "Nie udaÅ‚o siÄ™ zalogowaÄ‡ do aplikacji - bÅ‚Ä™dny email lub hasÅ‚o. ProszÄ™ nacisnÄ…Ä‡ OK i sprÃ³bowaÄ‡ ponownie.",
+                        "EasyRCP - BÅ‚Ä…d",
                         MessageBoxButtons.OK,
                         MessageBoxIcon.Error);
 
@@ -85,7 +85,7 @@ internal static class Program
             if (result == null)
             {
                 MessageBox.Show(
-                    "Brak po³¹czenia z internetem. Aplikacja dzia³a w tle i bêdzie dostêpna po wznowieniu po³¹czenia z internetem.",
+                    "Brak poÅ‚Ä…czenia z internetem. Aplikacja dziaÅ‚a w tle i bÄ™dzie dostÄ™pna po wznowieniu poÅ‚Ä…czenia z internetem.",
                     "EasyRCP - Brak Internetu",
                     MessageBoxButtons.OK,
                     MessageBoxIcon.Warning);
@@ -106,11 +106,11 @@ internal static class Program
         }
         catch (Exception ex)
         {
-            // TODO: tutaj mo¿e mail jeszcze do mnie z informacj¹ ¿e coœ posz³o komuœ nie tak - komu i co posz³o nie tak
+            // TODO: tutaj moÅ¼e mail jeszcze do mnie z informacjÄ… Å¼e coÅ› poszÅ‚o komuÅ› nie tak - komu i co poszÅ‚o nie tak
             File.AppendAllText("output.txt", $"[{DateTime.Now}] {ex}\n\n");
             MessageBox.Show(
-                "Wyst¹pi³ nieoczekiwany b³¹d. Szczegó³y zapisano w pliku output.txt",
-                "EasyRCP - B³¹d",
+                "WystÄ…piÅ‚ nieoczekiwany bÅ‚Ä…d. SzczegÃ³Å‚y zapisano w pliku output.txt",
+                "EasyRCP - BÅ‚Ä…d",
                 MessageBoxButtons.OK,
                 MessageBoxIcon.Error);
         }
