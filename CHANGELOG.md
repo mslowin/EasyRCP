@@ -1,5 +1,42 @@
 # Changelog
 
+## [2.0.10](https://github.com/mslowin/EasyRCP/compare/v2.0.9...v2.0.10) (2025-07-04)
+
+
+### Bug Fixes
+
+* fix polish characters ([002b635](https://github.com/mslowin/EasyRCP/commit/002b635afa13a9ce6e9b00bb62ff4e8705e76349))
+
+## [2.0.9](https://github.com/mslowin/EasyRCP/compare/v2.0.8...v2.0.9) (2025-07-04)
+
+
+### Bug Fixes
+
+* fix polisch characters ([ad493e2](https://github.com/mslowin/EasyRCP/commit/ad493e290cc9ffcfeffac9483079d45a1b6f4cd2))
+* fix polisch characters ([b81905d](https://github.com/mslowin/EasyRCP/commit/b81905d9306d6a57a69a677b1d14e5dad39cc092))
+* fix polish characters ([b01e808](https://github.com/mslowin/EasyRCP/commit/b01e808a0684d792cdf287233636ec4885ee09c0))
+
+## [2.0.8](https://github.com/mslowin/EasyRCP/compare/v2.0.7...v2.0.8) (2025-07-04)
+
+
+### Bug Fixes
+
+* update workflow to fix the polish characters ([4dfc450](https://github.com/mslowin/EasyRCP/commit/4dfc45071c0438e0072b8ecb12e5c6aaa2b0ab35))
+
+## [2.0.7](https://github.com/mslowin/EasyRCP/compare/v2.0.6...v2.0.7) (2025-07-04)
+
+
+### Bug Fixes
+
+* fix polisch characters ([3994a8e](https://github.com/mslowin/EasyRCP/commit/3994a8ea80abeb1169b051d6ebadef325eece792))
+
+## [2.0.6](https://github.com/mslowin/EasyRCP/compare/v2.0.5...v2.0.6) (2025-07-04)
+
+
+### Bug Fixes
+
+* fix polisch characters ([8c7f2f8](https://github.com/mslowin/EasyRCP/commit/8c7f2f8c8b89232eab54ac19f434adbb58ecb280))
+
 ## [2.0.5](https://github.com/mslowin/EasyRCP/compare/v2.0.4...v2.0.5) (2025-07-04)
 
 
