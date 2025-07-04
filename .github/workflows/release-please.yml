@@ -139,8 +139,6 @@ jobs:
         env:
           DOTNET_SYSTEM_GLOBALIZATION_INVARIANT: false
           DOTNET_SYSTEM_GLOBALIZATION_USENLS: true
-          LANG: en_US.UTF-8
-          LC_ALL: en_US.UTF-8
           LC_CTYPE: en_US.UTF-8
           LANG: en_US.UTF-8
           LC_ALL: en_US.UTF-8
@@ -148,9 +146,20 @@ jobs:
       - name: Build app (self-contained)
         run: |
           Write-Host "Building with explicit UTF-8 settings..."
+          
+          # Ustaw zmienne środowiskowe dla tego procesu
           $env:LANG = "en_US.UTF-8"
           $env:LC_ALL = "en_US.UTF-8"
-          dotnet publish EasyRCP.csproj -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -p:InvariantGlobalization=false -p:UseAppHost=true -p:PublishTrimmed=false -o publish --verbosity normal
+          $env:DOTNET_SYSTEM_GLOBALIZATION_INVARIANT = "false"
+          $env:DOTNET_SYSTEM_GLOBALIZATION_USENLS = "true"
+          
+          # Spróbuj zmienić codepage na UTF-8
+          chcp 65001
+          
+          # Pokazuj szczegółowe informacje podczas budowania
+          dotnet publish EasyRCP.csproj -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -p:InvariantGlobalization=false -p:UseAppHost=true -p:PublishTrimmed=false -o publish --verbosity detailed
+          
+          Write-Host "Build completed!"
         shell: pwsh
         env:
           DOTNET_SYSTEM_GLOBALIZATION_INVARIANT: false
@@ -164,17 +173,28 @@ jobs:
             Write-Host "Size: $($_.Length) bytes"
           }
           
-          # Sprawdź czy aplikacja w ogóle się uruchamia
-          Write-Host "Testing if app runs..."
+          # Sprawdź zawartość exe pod kątem polskich znaków
+          Write-Host "Checking for Polish characters in the executable..."
           $exePath = Get-ChildItem -Path publish -Filter "*.exe" | Select-Object -First 1
           if ($exePath) {
-            Write-Host "Trying to run: $($exePath.FullName)"
-            try {
-              # Spróbuj uruchomić aplikację z timeoutem
-              $process = Start-Process -FilePath $exePath.FullName -ArgumentList "--help" -PassThru -NoNewWindow -Wait -TimeoutSec 10
-              Write-Host "App exit code: $($process.ExitCode)"
-            } catch {
-              Write-Host "Error running app: $($_.Exception.Message)"
+            $exeBytes = [System.IO.File]::ReadAllBytes($exePath.FullName)
+            $exeText = [System.Text.Encoding]::UTF8.GetString($exeBytes)
+            
+            # Sprawdź czy polskie znaki są w exe
+            if ($exeText -match '[ąćęłńóśźżĄĆĘŁŃÓŚŹŻ]') {
+              Write-Host "✓ Found Polish characters in the executable!"
+              $matches = [regex]::Matches($exeText, '[ąćęłńóśźżĄĆĘŁŃÓŚŹŻ]')
+              Write-Host "Found $($matches.Count) Polish characters"
+            } else {
+              Write-Host "✗ No Polish characters found in the executable"
+            }
+            
+            # Sprawdź czy są jakieś polskie słowa zakodowane w inny sposób
+            $suspiciousPatterns = @('B.*d', 'S.*owo', 'Zg.*osz', 'Wyj.*cie')
+            foreach ($pattern in $suspiciousPatterns) {
+              if ($exeText -match $pattern) {
+                Write-Host "Found suspicious pattern: $pattern"
+              }
             }
           }
         shell: pwsh
