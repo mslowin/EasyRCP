@@ -12,6 +12,8 @@
     <SelfContained>true</SelfContained>
     <Utf8Output>true</Utf8Output>
     <FileEncoding>UTF-8</FileEncoding>
+    <PublishTrimmed>false</PublishTrimmed>
+    <TrimMode>none</TrimMode>
   </PropertyGroup>
 
   <PropertyGroup>
