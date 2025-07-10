@@ -1,5 +1,13 @@
 # Changelog
 
+## [2.0.13](https://github.com/mslowin/EasyRCP/compare/v2.0.12...v2.0.13) (2025-07-10)
+
+
+### Bug Fixes
+
+* testing folder relocation ([ea5fae5](https://github.com/mslowin/EasyRCP/commit/ea5fae5f4f788be62c197d41adc9d846668e5fc3))
+* testing folder relocation ([e6fbcde](https://github.com/mslowin/EasyRCP/commit/e6fbcdeedc8fb14446a14a5daaa862cf09c2cb01))
+
 ## [2.0.12](https://github.com/mslowin/EasyRCP/compare/v2.0.11...v2.0.12) (2025-07-10)
 
 
