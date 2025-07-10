@@ -13,9 +13,6 @@ internal static class Program
     [STAThread]
     static async Task Main()
     {
-        Thread.CurrentThread.CurrentCulture = new CultureInfo("pl-PL");
-        Thread.CurrentThread.CurrentUICulture = new CultureInfo("pl-PL");
-
         try
         {
             // Ensure the application is running from the correct location on the PC

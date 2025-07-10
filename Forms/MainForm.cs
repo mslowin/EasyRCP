@@ -6,11 +6,10 @@ namespace EasyRCP;
 
 public partial class MainForm : Form
 {
-    private RcpApiClient? _apiClient;
-    private bool _isHidden;
-
-    private NotifyIcon _trayIcon;
-    private ContextMenuStrip _trayMenu;
+    private readonly RcpApiClient? _apiClient;
+    private readonly bool _isHidden;
+    private readonly NotifyIcon _trayIcon;
+    private readonly ContextMenuStrip _trayMenu;
 
     /// <summary>
     /// The label in the tray menu that displays the current work status.

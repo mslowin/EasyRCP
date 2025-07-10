@@ -82,7 +82,6 @@ public static class GitHubUpdater
                 MessageBoxButtons.OK,
                 MessageBoxIcon.Information);
             File.Delete(updateScriptPath);
-
             return true;
         }
 
