@@ -1,5 +1,16 @@
 # Changelog
 
+## [3.0.0](https://github.com/mslowin/EasyRCP/compare/v2.0.13...v3.0.0) (2025-07-10)
+
+
+### ⚠ BREAKING CHANGES
+
+* Finish Self relocation and auto updater
+
+### Features
+
+* Finish Self relocation and auto updater ([1fb3119](https://github.com/mslowin/EasyRCP/commit/1fb31190dea3896c7d8c19c322149063aa3c9374))
+
 ## [2.0.13](https://github.com/mslowin/EasyRCP/compare/v2.0.12...v2.0.13) (2025-07-10)
 
 
