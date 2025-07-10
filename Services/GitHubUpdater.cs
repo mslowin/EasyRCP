@@ -72,7 +72,6 @@ public static class GitHubUpdater
     private static bool CheckIfUpdateScriptExists()
     {
         var updateScriptPath = Path.Combine(AppContext.BaseDirectory, "update.bat");
-        File.WriteAllText(Path.Combine(AppContext.BaseDirectory, "output.txt"), updateScriptPath);
 
         if (File.Exists(updateScriptPath))
         {
@@ -110,7 +109,7 @@ public static class GitHubUpdater
             """;
 
         File.WriteAllText(updateScriptPath, script);
-        Process.Start(new ProcessStartInfo("cmd.exe", $"/c \"{updateScriptPath}\"") { CreateNoWindow = false });
+        Process.Start(new ProcessStartInfo("cmd.exe", $"/c \"{updateScriptPath}\"") { CreateNoWindow = true });
     }
 
     /// <summary>

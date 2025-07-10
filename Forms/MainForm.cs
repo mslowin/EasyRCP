@@ -69,7 +69,7 @@ public partial class MainForm : Form
         _endWorkMenuItem.ForeColor = Color.Red;
         _trayMenu.Items.Add(_endWorkMenuItem);
         _trayMenu.Items.Add("Opcje", null, (s, e) => ShowSettings());
-        _trayMenu.Items.Add("Wyjdź ->", null, (s, e) => Environment.Exit(0));
+        _trayMenu.Items.Add("Wyjdź", null, (s, e) => Environment.Exit(0));
 
         // Ikona/przycisk w trayu
         _trayIcon = new NotifyIcon();
