@@ -62,14 +62,14 @@ public partial class MainForm : Form
         _trayMenu.Items.Add(new ToolStripSeparator());
 
         // przyciski w trayu
-        _startWorkMenuItem = new ToolStripMenuItem("Rozpocznij pracę ->", null, async (s, e) => await StartWork());
+        _startWorkMenuItem = new ToolStripMenuItem("Rozpocznij pracę", null, async (s, e) => await StartWork());
         _startWorkMenuItem.ForeColor = Color.Green;
         _trayMenu.Items.Add(_startWorkMenuItem);
         _endWorkMenuItem = new ToolStripMenuItem("Zakończ pracę", null, async (s, e) => await EndWork());
         _endWorkMenuItem.ForeColor = Color.Red;
         _trayMenu.Items.Add(_endWorkMenuItem);
         _trayMenu.Items.Add("Opcje", null, (s, e) => ShowSettings());
-        _trayMenu.Items.Add("Wyjdź", null, (s, e) => Environment.Exit(0));
+        _trayMenu.Items.Add("Wyjdź ->", null, (s, e) => Environment.Exit(0));
 
         // Ikona/przycisk w trayu
         _trayIcon = new NotifyIcon();
