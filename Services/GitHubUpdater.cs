@@ -52,9 +52,10 @@ public static class GitHubUpdater
                     MessageBoxButtons.OK,
                     MessageBoxIcon.Information);
 
-                var newExe = "EasyRCP_new.exe";
+                var appDir = AppContext.BaseDirectory;
+                var newExePath = Path.Combine(appDir, "EasyRCP_new.exe");
                 using var stream = await httpClient.GetStreamAsync(asset.AplicationDownloadUrl);
-                using var fs = File.Create(newExe);
+                using var fs = File.Create(newExePath);
                 await stream.CopyToAsync(fs);
 
                 CreateAndRunUpdateScript();
@@ -70,15 +71,17 @@ public static class GitHubUpdater
     /// <returns>True if the update script exists and was processed, false otherwise.</returns>
     private static bool CheckIfUpdateScriptExists()
     {
-        if (File.Exists("update.bat"))
+        var updateScriptPath = Path.Combine(AppContext.BaseDirectory, "update.bat");
+        File.WriteAllText(Path.Combine(AppContext.BaseDirectory, "output.txt"), updateScriptPath);
+
+        if (File.Exists(updateScriptPath))
         {
             MessageBox.Show(
                 "Aplikacja została zaktualizowana do najnowszej wersji i automatycznie się uruchomi.",
                 "EasyRCP - Aktualizacja zakończona",
                 MessageBoxButtons.OK,
                 MessageBoxIcon.Information);
-
-            File.Delete("update.bat");
+            File.Delete(updateScriptPath);
             return true;
         }
 
@@ -91,18 +94,23 @@ public static class GitHubUpdater
     /// </summary>
     private static void CreateAndRunUpdateScript()
     {
-        var script = """
-        taskkill /f /im EasyRCP.exe
-        timeout /t 2 /nobreak > NUL
-        del EasyRCP.exe
-        timeout /t 1 /nobreak > NUL
-        rename EasyRCP_new.exe EasyRCP.exe
-        timeout /t 1 /nobreak > NUL
-        start EasyRCP.exe
-        """;
+        var appDirectory = AppContext.BaseDirectory;
+        var exePath = Path.Combine(appDirectory, "EasyRCP.exe");
+        var newExePath = Path.Combine(appDirectory, "EasyRCP_new.exe");
+        var updateScriptPath = Path.Combine(appDirectory, "update.bat");
 
-        File.WriteAllText("update.bat", script);
-        Process.Start(new ProcessStartInfo("cmd.exe", "/c update.bat") { CreateNoWindow = true });
+        var script = $"""
+            taskkill /f /im EasyRCP.exe
+            timeout /t 2 /nobreak > NUL
+            del "{exePath}"
+            timeout /t 1 /nobreak > NUL
+            rename "{newExePath}" "EasyRCP.exe"
+            timeout /t 2 /nobreak > NUL
+            start "" "{exePath}"
+            """;
+
+        File.WriteAllText(updateScriptPath, script);
+        Process.Start(new ProcessStartInfo("cmd.exe", $"/c \"{updateScriptPath}\"") { CreateNoWindow = false });
     }
 
     /// <summary>
