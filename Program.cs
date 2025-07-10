@@ -18,6 +18,9 @@ internal static class Program
 
         try
         {
+            // Ensure the application is running from the correct location on the PC
+            SelfRelocationService.EnsureRunningFromCorrectLocation();
+
             // Check for new application version and apply it if available
             await GitHubUpdater.CheckVersionAndUpdateApplicationAsync();
 
