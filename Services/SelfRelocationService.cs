@@ -54,7 +54,6 @@ namespace EasyRCP.Services
 
             Process.Start(new ProcessStartInfo("cmd.exe", $"/c \"{moveScriptPath}\"")
             {
-                UseShellExecute = true,
                 CreateNoWindow = true
             });
 
