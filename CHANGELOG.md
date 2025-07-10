@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.0.12](https://github.com/mslowin/EasyRCP/compare/v2.0.11...v2.0.12) (2025-07-10)
+
+
+### Features
+
+* ensure application runs from correct location and updates ([73b444c](https://github.com/mslowin/EasyRCP/commit/73b444c9874aa9fefa61213c49948ee0ed81d27c))
+
 ## [2.0.11](https://github.com/mslowin/EasyRCP/compare/v2.0.10...v2.0.11) (2025-07-04)
 
 
