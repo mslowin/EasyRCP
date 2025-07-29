@@ -145,6 +145,7 @@ public partial class MainForm : Form
 
         if (isWorking == null)
         {
+            await Task.Delay(800);
             isWorking = await RcpAutomationService.CheckIfWorkAlreadyStartedAsync(_apiClient);
         }
 
@@ -168,6 +169,11 @@ public partial class MainForm : Form
         }
         else
         {
+            // TODO: najczęściej kiedy aplikacja wchodzi tutaj to poprzez błąd, gdzie użytkownik naciska TAK,
+            // żęby rozpocząć pracę, a api zwraca, że on nie pracuje (mimo, że przed chwilą poszedł POST, że start pracy)
+            // Dodałem Delay 800ms, żeby dać czas na wysłanie POSTa do systemu RCP i "zaksięgowanie" go. Powinno działać.
+
+            // TODO: Jednak w razie czego przydałby się tutaj jakiś mechanizm informowania admina, że coś poszło nie tak. Mail albo coś.
             _statusLabel.ForeColor = Color.Red;
             _statusLabel.Text = "Czas pracy nie jest rejestrowany";
             _workTimer.Stop();
