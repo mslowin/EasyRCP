@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.0.1](https://github.com/mslowin/EasyRCP/compare/v3.0.0...v3.0.1) (2025-07-29)
+
+
+### Bug Fixes
+
+* fix work status extraction logic, enhance error handling and logging across application ([dc44cb8](https://github.com/mslowin/EasyRCP/commit/dc44cb86abdfbc3247770313d512f7b2000acdd9))
+
 ## [3.0.0](https://github.com/mslowin/EasyRCP/compare/v2.0.13...v3.0.0) (2025-07-10)
 
 
