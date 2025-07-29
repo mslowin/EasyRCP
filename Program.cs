@@ -78,8 +78,6 @@ internal static class Program
                 }
             } while (!api.LoginSuccessful);
 
-            
-
             // Check if the work has already started - runs in the background 6 times every 1 minute
             var result = await RcpAutomationService.CheckIfWorkAlreadyStartedWithRetryAsync(api);
             if (result == null)
@@ -107,9 +105,9 @@ internal static class Program
         catch (Exception ex)
         {
             // TODO: tutaj może mail jeszcze do mnie z informacją że coś poszło komuś nie tak - komu i co poszło nie tak
-            File.AppendAllText("output.txt", $"[{DateTime.Now}] {ex}\n\n");
+            File.AppendAllText("output.txt", $"[{DateTime.Now}] {ex}\nMetoda: Program.cs -> Main()\n\n");
             MessageBox.Show(
-                "Wystąpił nieoczekiwany błąd. Szczegóły zapisano w pliku output.txt",
+                "Wystąpił nieoczekiwany błąd. Szczegóły zapisano w pliku output.txt, proszę skonsultować się z administratorem.",
                 "EasyRCP - Błąd",
                 MessageBoxButtons.OK,
                 MessageBoxIcon.Error);
