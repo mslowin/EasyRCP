@@ -138,31 +138,51 @@ public class RcpApiClient
     /// <returns>true if work has already started; otherwise false.</returns>
     public async Task<bool> CheckIfWorkAlreadyStarted()
     {
-        var myStatusResponse = await _client.PostAsync("/dashboard/getMyStatus/1", null);
-        string json = await ReadResponseAsDecompressedString(myStatusResponse);
-        var parsed = JsonDocument.Parse(json);
-        var rawHtml = parsed.RootElement.GetProperty("body").GetString();
-        var readableHtml = WebUtility.HtmlDecode(rawHtml);
+        try
+        {
+            var myStatusResponse = await _client.PostAsync("/dashboard/getMyStatus/1", null);
+            string json = await ReadResponseAsDecompressedString(myStatusResponse);
+            var parsed = JsonDocument.Parse(json);
+            var rawHtml = parsed.RootElement.GetProperty("body").GetString();
+            var readableHtml = WebUtility.HtmlDecode(rawHtml);
 
-        if (readableHtml != null && (readableHtml.Contains("Na stanowisku")
-                                    || readableHtml.Contains("Praca zdalna")
-                                    || readableHtml.Contains("W terenie")))
-        {
-            // User is already at work
-            return true;
+            if (readableHtml == null)
+            {
+                throw new InvalidOperationException("Nie udało się odczytać HTMLa z getMyStatus");
+            }
+
+            var match = Regex.Match(readableHtml, @"Twój status obecności.*?<span class=""fw-bolder fs-2"">\s*(.*?)\s*</span>", RegexOptions.Singleline);
+            if (!match.Success)
+            {
+                throw new InvalidOperationException("Nie udało się znaleźć statusu obecności w HTMLu z getMyStatus");
+            }
+
+            var workStatus = match.Groups[1].Value.Trim();
+            if (workStatus != null && (workStatus == "Na stanowisku"
+                                       || workStatus == "Praca zdalna"
+                                       || workStatus == "W terenie"))
+            {
+                // User is already at work
+                return true;
+            }
+            else if (workStatus != null && workStatus == "Nie ma")
+            {
+                // User is not at work
+                return false;
+            }
+            else
+            {
+                throw new InvalidOperationException("Nie udało się rozpoznać statusu pracy w HTMLu z getMyStatus");
+            }
         }
-        else if (readableHtml != null && readableHtml.Contains("Nie ma"))
-        {
-            // User is not at work
-            return false;
-        }
-        else
+        catch (Exception ex)
         {
             // Sth not right but cannot throw error to Program.cs as this is in Polly retry policy. Needs to be handled here
-            File.AppendAllText("output.txt", $"[{DateTime.Now}] Coś poszło nie tak, nie udało się sprawdzić, czy użytkownik jest już w pracy. " +
+            File.AppendAllText("output.txt", $"[{DateTime.Now}] Coś poszło nie tak, nie udało się sprawdzić," +
+            $"czy użytkownik jest już w pracy.\nMetoda: RcpApiClient -> CheckIfWorkAlreadyStarted()\n ex.Message: {ex.Message}\n" +
             $"Możliwe, że zmieniło się coś w zwracanym z /dashboard/getMyStatus/ HTMLu.\n\n");
             MessageBox.Show(
-                "Wystąpił nieoczekiwany błąd. Szczegóły zapisano w pliku output.txt",
+                "Wystąpił nieoczekiwany błąd. Szczegóły zapisano w pliku output.txt, proszę skonsultować się z administratorem.",
                 "EasyRCP - Błąd",
                 MessageBoxButtons.OK,
                 MessageBoxIcon.Error);
@@ -283,9 +303,10 @@ public class RcpApiClient
         if (!resp.IsSuccessStatusCode)
         {
             // TODO: tu może wystarczy zrobić throw do Program.cs
-            File.AppendAllText("output.txt", $"[{DateTime.Now}] HTTP {(int)resp.StatusCode}: {resp.ReasonPhrase}\n{json}\n\n");
+            File.AppendAllText("output.txt", $"[{DateTime.Now}] HTTP {(int)resp.StatusCode}: {resp.ReasonPhrase}\n{json}\n" +
+            $"Metoda: RcpApiClient -> SendPostAndHandleResponseAsync()\n\n");
             MessageBox.Show(
-                $"Błąd, szczegóły zostały zapisane w pliku output.txt",
+                $"Błąd, szczegóły zostały zapisane w pliku output.txt, proszę skonsultować się z administratorem.",
                 "EasyRCP - Błąd",
                 MessageBoxButtons.OK,
                 MessageBoxIcon.Error);
@@ -297,9 +318,10 @@ public class RcpApiClient
         if (!success)
         {
             // TODO: tu może wystarczy zrobić throw do Program.cs
-            File.AppendAllText("output.txt", $"[{DateTime.Now}] API zwróciło success = false\n{json}\n\n");
+            File.AppendAllText("output.txt", $"[{DateTime.Now}] API zwróciło success = false\n{json}\n" +
+            $"Metoda: RcpApiClient -> SendPostAndHandleResponseAsync()\n\n");
             MessageBox.Show(
-                $"Błąd, szczegóły zostały zapisane w pliku output.txt",
+                $"Błąd, szczegóły zostały zapisane w pliku output.txt, proszę skonsultować się z administratorem.",
                 "EasyRCP - Błąd",
                 MessageBoxButtons.OK,
                 MessageBoxIcon.Error);

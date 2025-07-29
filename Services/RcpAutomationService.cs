@@ -15,7 +15,8 @@ public static class RcpAutomationService
             sleepDurationProvider: retryAttempt => TimeSpan.FromMinutes(1),
             onRetry: (exception, timeSpan, retryCount, _) =>
             {
-                File.AppendAllText("output.txt", $"[{DateTime.Now}] [Retry {retryCount}] Błąd: {exception.Message}. Próba ponownie za {timeSpan.TotalSeconds} sek.\n\n");
+                File.AppendAllText("output.txt", $"[{DateTime.Now}] [Retry {retryCount}] Błąd: {exception.Message}. Próba ponownie za {timeSpan.TotalSeconds} sek.\n" +
+                $"Metoda: RcpAutomationService -> CheckIfWorkAlreadyStartedAsync()\n\n");
             });
 
     /// <summary>
@@ -35,7 +36,8 @@ public static class RcpAutomationService
         }
         catch (Exception ex)
         {
-            File.AppendAllText("output.txt", $"[{DateTime.Now}] {ex}\n\n");
+            File.AppendAllText("output.txt", $"[{DateTime.Now}] {ex}\n" +
+            $"Metoda: RcpAutomationService -> CheckIfWorkAlreadyStartedWithRetryAsync()\n\n");
             Console.WriteLine($"Wszystkie retry zakończone niepowodzeniem (pewnie brak internetu). Szczegóły błędu zapisano w pliku output.txt");
             return null;
         }
@@ -92,9 +94,10 @@ public static class RcpAutomationService
             // Program.cs właśnie w każdym przypadku (zarówno z metody wywoływanej w Program.cs, jak i z opcji w tray menu)
 
             // TODO: tutaj może mail jeszcze do mnie z informacją że coś poszło komuś nie tak - komu i co poszło nie tak
-            File.AppendAllText("output.txt", $"[{DateTime.Now}] {ex}\n\n");
+            File.AppendAllText("output.txt", $"[{DateTime.Now}] {ex}\n" +
+            $"Metoda: RcpAutomationService -> StartWorkAsync()\n\n");
             MessageBox.Show(
-                "Wystąpił nieoczekiwany błąd, nie udało się zarejestrować początku pracy. Szczegóły błędu zapisano w pliku output.txt",
+                "Wystąpił nieoczekiwany błąd, nie udało się zarejestrować początku pracy. Szczegóły błędu zapisano w pliku output.txt, proszę skonsultować się z administratorem.",
                 "EasyRCP - Błąd",
                 MessageBoxButtons.OK,
                 MessageBoxIcon.Error);
@@ -143,9 +146,10 @@ public static class RcpAutomationService
             // Program.cs właśnie w każdym przypadku (zarówno z metody wywoływanej w Program.cs, jak i z opcji w tray menu)
 
             // TODO: tutaj może mail jeszcze do mnie z informacją że coś poszło komuś nie tak - komu i co poszło nie tak
-            File.AppendAllText("output.txt", $"[{DateTime.Now}] {ex}\n\n");
+            File.AppendAllText("output.txt", $"[{DateTime.Now}] {ex}\n" +
+            $"Metoda: RcpAutomationService -> EndWork()\n\n");
             MessageBox.Show(
-                "Wystąpił nieoczekiwany błąd, nie udało się zarejestrować końca pracy. Szczegóły błędu zapisano w pliku output.txt",
+                "Wystąpił nieoczekiwany błąd, nie udało się zarejestrować końca pracy. Szczegóły błędu zapisano w pliku output.txt, proszę skonsultować się z administratorem.",
                 "EasyRCP - Błąd",
                 MessageBoxButtons.OK,
                 MessageBoxIcon.Error);
