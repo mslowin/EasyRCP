@@ -15,6 +15,25 @@ internal static class Program
     {
         try
         {
+#if DEBUG
+            string environment = "Development";
+#else
+            string environment = "Production";
+#endif
+            SentrySdk.Init(o =>
+            {
+                o.Dsn = "https://fc312c602b39fe2f9c974049fa40bc6f@o4509757627367424.ingest.de.sentry.io/4509768557068368";
+#if DEBUG
+                o.Debug = true;
+#else
+                o.Debug = false;
+#endif
+                o.Environment = environment;
+                o.TracesSampleRate = 1.0;
+            });
+
+            Application.SetUnhandledExceptionMode(UnhandledExceptionMode.ThrowException);
+
             // Ensure the application is running from the correct location on the PC
             SelfRelocationService.EnsureRunningFromCorrectLocation();
 
@@ -104,13 +123,17 @@ internal static class Program
         }
         catch (Exception ex)
         {
-            // TODO: tutaj może mail jeszcze do mnie z informacją że coś poszło komuś nie tak - komu i co poszło nie tak
-            File.AppendAllText("output.txt", $"[{DateTime.Now}] {ex}\nMetoda: Program.cs -> Main()\n\n");
+            SentrySdk.CaptureException(ex);
+            File.AppendAllText("output.txt", $"[{DateTime.Now}] {ex}\n\n");
             MessageBox.Show(
                 "Wystąpił nieoczekiwany błąd. Szczegóły zapisano w pliku output.txt, proszę skonsultować się z administratorem.",
                 "EasyRCP - Błąd",
                 MessageBoxButtons.OK,
                 MessageBoxIcon.Error);
+        }
+        finally
+        {
+            SentrySdk.Close();
         }
     }
 

@@ -15,8 +15,9 @@ public static class RcpAutomationService
             sleepDurationProvider: retryAttempt => TimeSpan.FromMinutes(1),
             onRetry: (exception, timeSpan, retryCount, _) =>
             {
+                SentrySdk.CaptureException(exception);
                 File.AppendAllText("output.txt", $"[{DateTime.Now}] [Retry {retryCount}] Błąd: {exception.Message}. Próba ponownie za {timeSpan.TotalSeconds} sek.\n" +
-                $"Metoda: RcpAutomationService -> CheckIfWorkAlreadyStartedAsync()\n\n");
+                    $"Metoda: RcpAutomationService -> CheckIfWorkAlreadyStartedAsync()\n\n");
             });
 
     /// <summary>
@@ -36,8 +37,9 @@ public static class RcpAutomationService
         }
         catch (Exception ex)
         {
+            SentrySdk.CaptureException(ex);
             File.AppendAllText("output.txt", $"[{DateTime.Now}] {ex}\n" +
-            $"Metoda: RcpAutomationService -> CheckIfWorkAlreadyStartedWithRetryAsync()\n\n");
+                $"Metoda: RcpAutomationService -> CheckIfWorkAlreadyStartedWithRetryAsync()\n\n");
             Console.WriteLine($"Wszystkie retry zakończone niepowodzeniem (pewnie brak internetu). Szczegóły błędu zapisano w pliku output.txt");
             return null;
         }
@@ -93,9 +95,9 @@ public static class RcpAutomationService
             // TODO: error handling jest w PRogram.cs - sprawdzić, czy bez try catcha tutaj będą ładnie szły błędy do
             // Program.cs właśnie w każdym przypadku (zarówno z metody wywoływanej w Program.cs, jak i z opcji w tray menu)
 
-            // TODO: tutaj może mail jeszcze do mnie z informacją że coś poszło komuś nie tak - komu i co poszło nie tak
+            SentrySdk.CaptureException(ex);
             File.AppendAllText("output.txt", $"[{DateTime.Now}] {ex}\n" +
-            $"Metoda: RcpAutomationService -> StartWorkAsync()\n\n");
+                $"Metoda: RcpAutomationService -> StartWorkAsync()\n\n");
             MessageBox.Show(
                 "Wystąpił nieoczekiwany błąd, nie udało się zarejestrować początku pracy. Szczegóły błędu zapisano w pliku output.txt, proszę skonsultować się z administratorem.",
                 "EasyRCP - Błąd",
@@ -145,9 +147,9 @@ public static class RcpAutomationService
             // TODO: error handling jest w PRogram.cs - sprawdzić, czy bez try catcha tutaj będą ładnie szły błędy do
             // Program.cs właśnie w każdym przypadku (zarówno z metody wywoływanej w Program.cs, jak i z opcji w tray menu)
 
-            // TODO: tutaj może mail jeszcze do mnie z informacją że coś poszło komuś nie tak - komu i co poszło nie tak
+            SentrySdk.CaptureException(ex);
             File.AppendAllText("output.txt", $"[{DateTime.Now}] {ex}\n" +
-            $"Metoda: RcpAutomationService -> EndWork()\n\n");
+                $"Metoda: RcpAutomationService -> EndWork()\n\n");
             MessageBox.Show(
                 "Wystąpił nieoczekiwany błąd, nie udało się zarejestrować końca pracy. Szczegóły błędu zapisano w pliku output.txt, proszę skonsultować się z administratorem.",
                 "EasyRCP - Błąd",
