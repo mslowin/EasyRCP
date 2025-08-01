@@ -1,5 +1,16 @@
 # Changelog
 
+## [4.0.0](https://github.com/mslowin/EasyRCP/compare/v3.0.2...v4.0.0) (2025-08-01)
+
+
+### ⚠ BREAKING CHANGES
+
+* integrate Sentry for improved error tracking
+
+### Features
+
+* integrate Sentry for improved error tracking ([e7220a5](https://github.com/mslowin/EasyRCP/commit/e7220a5a21ad15cf4f2af7d79de036675de307a1))
+
 ## [3.0.2](https://github.com/mslowin/EasyRCP/compare/v3.0.1...v3.0.2) (2025-07-30)
 
 
