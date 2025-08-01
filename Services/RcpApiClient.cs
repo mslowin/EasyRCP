@@ -178,9 +178,10 @@ public class RcpApiClient
         catch (Exception ex)
         {
             // Sth not right but cannot throw error to Program.cs as this is in Polly retry policy. Needs to be handled here
+            SentrySdk.CaptureException(ex);
             File.AppendAllText("output.txt", $"[{DateTime.Now}] Coś poszło nie tak, nie udało się sprawdzić," +
-            $"czy użytkownik jest już w pracy.\nMetoda: RcpApiClient -> CheckIfWorkAlreadyStarted()\n ex.Message: {ex.Message}\n" +
-            $"Możliwe, że zmieniło się coś w zwracanym z /dashboard/getMyStatus/ HTMLu.\n\n");
+                $"czy użytkownik jest już w pracy.\nMożliwe, że zmieniło się coś w zwracanym z /dashboard/getMyStatus/ HTMLu.\n" +
+                $"Metoda: RcpApiClient -> CheckIfWorkAlreadyStarted()\n ex.Message: {ex.Message}\n\n");
             MessageBox.Show(
                 "Wystąpił nieoczekiwany błąd. Szczegóły zapisano w pliku output.txt, proszę skonsultować się z administratorem.",
                 "EasyRCP - Błąd",
@@ -303,8 +304,10 @@ public class RcpApiClient
         if (!resp.IsSuccessStatusCode)
         {
             // TODO: tu może wystarczy zrobić throw do Program.cs
+            SentrySdk.CaptureException(new Exception($"[{DateTime.Now}] HTTP {(int)resp.StatusCode}: {resp.ReasonPhrase}\n{json}\n" +
+                $"Metoda: RcpApiClient -> SendPostAndHandleResponseAsync()\n\n"));
             File.AppendAllText("output.txt", $"[{DateTime.Now}] HTTP {(int)resp.StatusCode}: {resp.ReasonPhrase}\n{json}\n" +
-            $"Metoda: RcpApiClient -> SendPostAndHandleResponseAsync()\n\n");
+                $"Metoda: RcpApiClient -> SendPostAndHandleResponseAsync()\n\n");
             MessageBox.Show(
                 $"Błąd, szczegóły zostały zapisane w pliku output.txt, proszę skonsultować się z administratorem.",
                 "EasyRCP - Błąd",
@@ -318,8 +321,10 @@ public class RcpApiClient
         if (!success)
         {
             // TODO: tu może wystarczy zrobić throw do Program.cs
+            SentrySdk.CaptureException(new Exception($"[{DateTime.Now}] API zwróciło success = false\n{json}\n" +
+                $"Metoda: RcpApiClient -> SendPostAndHandleResponseAsync()\n\n"));
             File.AppendAllText("output.txt", $"[{DateTime.Now}] API zwróciło success = false\n{json}\n" +
-            $"Metoda: RcpApiClient -> SendPostAndHandleResponseAsync()\n\n");
+                $"Metoda: RcpApiClient -> SendPostAndHandleResponseAsync()\n\n");
             MessageBox.Show(
                 $"Błąd, szczegóły zostały zapisane w pliku output.txt, proszę skonsultować się z administratorem.",
                 "EasyRCP - Błąd",
