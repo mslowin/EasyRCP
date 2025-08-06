@@ -175,8 +175,14 @@ public class RcpApiClient
                 throw new InvalidOperationException("Nie udało się rozpoznać statusu pracy w HTMLu z getMyStatus");
             }
         }
+        catch (HttpRequestException)
+        {
+            // If there is no internet connection, we throw to the caller (Polly) so that it can retry
+            throw;
+        }
         catch (Exception ex)
         {
+            // All other exceptions are caught here and handled gracefully
             // Sth not right but cannot throw error to Program.cs as this is in Polly retry policy. Needs to be handled here
             SentrySdk.CaptureException(ex);
             File.AppendAllText("output.txt", $"[{DateTime.Now}] Coś poszło nie tak, nie udało się sprawdzić," +
