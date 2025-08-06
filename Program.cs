@@ -37,8 +37,18 @@ internal static class Program
             // Ensure the application is running from the correct location on the PC
             SelfRelocationService.EnsureRunningFromCorrectLocation();
 
-            // Check for new application version and apply it if available
-            await GitHubUpdater.CheckVersionAndUpdateApplicationAsync();
+            // Check for new application version and apply it if available - runs in the background 6 times every 1 minute
+            var success = await RcpAutomationService.CheckGitVersionAndUpdateApplicationWithRetryAsync();
+            if (!success)
+            {
+                MessageBox.Show(
+                    "Brak połączenia z internetem.",
+                    "EasyRCP - Brak Internetu",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Warning);
+
+                return;
+            }
 
             // To customize application configuration such as set high DPI settings or default font,
             // see https://aka.ms/applicationconfiguration.
@@ -76,8 +86,19 @@ internal static class Program
                 }
 
                 // Initialize the api client with the loaded credentials to comunicate with RCP system
-                // This method also tries to log in the user
-                api = await RcpApiClient.CreateApiClientAsync(credentials.Value.Email, credentials.Value.Password);
+                // This method also tries to log in the user - runs in the background 6 times every 1 minute
+                api = await RcpAutomationService.CreateApiClientWithRetryAsync(credentials.Value.Email, credentials.Value.Password);
+                if (api == null)
+                {
+                    MessageBox.Show(
+                        "Brak połączenia z internetem.",
+                        "EasyRCP - Brak Internetu",
+                        MessageBoxButtons.OK,
+                        MessageBoxIcon.Warning);
+
+                    return;
+                }
+
                 if (!api.LoginSuccessful)
                 {
                     MessageBox.Show(

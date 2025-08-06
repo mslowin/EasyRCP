@@ -16,8 +16,7 @@ public static class RcpAutomationService
             onRetry: (exception, timeSpan, retryCount, _) =>
             {
                 SentrySdk.CaptureException(exception);
-                File.AppendAllText("output.txt", $"[{DateTime.Now}] [Retry {retryCount}] Błąd: {exception.Message}. Próba ponownie za {timeSpan.TotalSeconds} sek.\n" +
-                    $"Metoda: RcpAutomationService -> CheckIfWorkAlreadyStartedAsync()\n\n");
+                File.AppendAllText("output.txt", $"[{DateTime.Now}] [Retry {retryCount}] Błąd: {exception.Message}. Próba ponownie za {timeSpan.TotalSeconds} sek.\n\n");
             });
 
     /// <summary>
@@ -42,6 +41,58 @@ public static class RcpAutomationService
                 $"Metoda: RcpAutomationService -> CheckIfWorkAlreadyStartedWithRetryAsync()\n\n");
             Console.WriteLine($"Wszystkie retry zakończone niepowodzeniem (pewnie brak internetu). Szczegóły błędu zapisano w pliku output.txt");
             return null;
+        }
+    }
+
+    /// <summary>
+    /// TODO
+    /// </summary>
+    /// <param name="email"></param>
+    /// <param name="password"></param>
+    /// <returns></returns>
+    public static async Task<RcpApiClient?> CreateApiClientWithRetryAsync(string email, string password)
+    {
+        try
+        {
+            return await RetryPolicy.ExecuteAsync(async () =>
+            {
+                var api = await CreateApiClientAsync(email, password);
+                return api;
+            });
+        }
+        catch (Exception ex)
+        {
+            SentrySdk.CaptureException(ex);
+            File.AppendAllText("output.txt", $"[{DateTime.Now}] {ex}\n" +
+                $"Metoda: RcpAutomationService -> CreateApiClientWithRetryAsync()\n\n");
+            Console.WriteLine($"Wszystkie retry zakończone niepowodzeniem (pewnie brak internetu). Szczegóły błędu zapisano w pliku output.txt");
+            return null;
+        }
+    }
+
+    /// <summary>
+    /// TODO
+    /// </summary>
+    /// <param name="email"></param>
+    /// <param name="password"></param>
+    /// <returns></returns>
+    public static async Task<bool> CheckGitVersionAndUpdateApplicationWithRetryAsync()
+    {
+        try
+        {
+            return await RetryPolicy.ExecuteAsync(async () =>
+            {
+                await CheckGitVersionAndUpdateApplicationAsync();
+                return true;
+            });
+        }
+        catch (Exception ex)
+        {
+            SentrySdk.CaptureException(ex);
+            File.AppendAllText("output.txt", $"[{DateTime.Now}] {ex}\n" +
+                $"Metoda: RcpAutomationService -> CheckGitVersionAndUpdateApplicationWithRetryAsync()\n\n");
+            Console.WriteLine($"Wszystkie retry zakończone niepowodzeniem (pewnie brak internetu). Szczegóły błędu zapisano w pliku output.txt");
+            return false;
         }
     }
 
@@ -166,6 +217,26 @@ public static class RcpAutomationService
     public static async Task<bool> CheckIfWorkAlreadyStartedAsync(RcpApiClient api)
     {
         return await api.CheckIfWorkAlreadyStarted();
+    }
+
+    /// <summary>
+    /// TODO
+    /// </summary>
+    /// <param name="email"></param>
+    /// <param name="password"></param>
+    /// <returns></returns>
+    public static async Task<RcpApiClient> CreateApiClientAsync(string email, string password)
+    {
+        return await RcpApiClient.CreateApiClientAsync(email, password);
+    }
+
+    /// <summary>
+    /// TODO
+    /// </summary>
+    /// <returns></returns>
+    public static async Task CheckGitVersionAndUpdateApplicationAsync()
+    {
+        await GitHubUpdater.CheckVersionAndUpdateApplicationAsync();
     }
 
     /// <summary>
