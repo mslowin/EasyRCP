@@ -1,5 +1,12 @@
 # Changelog
 
+## [4.0.1](https://github.com/mslowin/EasyRCP/compare/v4.0.0...v4.0.1) (2025-08-06)
+
+
+### Bug Fixes
+
+* add retry logic for github version checking and loging into RCP to fix "No internet connection" errors ([385c53f](https://github.com/mslowin/EasyRCP/commit/385c53fd44c4d104d2824a4e2a7c149b21de0f6d))
+
 ## [4.0.0](https://github.com/mslowin/EasyRCP/compare/v3.0.2...v4.0.0) (2025-08-01)
 
 
