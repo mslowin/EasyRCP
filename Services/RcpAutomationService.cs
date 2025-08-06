@@ -45,18 +45,20 @@ public static class RcpAutomationService
     }
 
     /// <summary>
-    /// TODO
+    /// Creates an instance of <see cref="RcpApiClient"/> and logs the user into RCP with retry logic.
     /// </summary>
-    /// <param name="email"></param>
-    /// <param name="password"></param>
-    /// <returns></returns>
+    /// <param name="email">The email address used to log into the RCP system.</param>
+    /// <param name="password">The password used to log into the RCP system.</param>
+    /// <returns>
+    /// An instance of <see cref="RcpApiClient"/> if login is successful; otherwise, null if all retry attempts fail (e.g., due to network issues).
+    /// </returns>
     public static async Task<RcpApiClient?> CreateApiClientWithRetryAsync(string email, string password)
     {
         try
         {
             return await RetryPolicy.ExecuteAsync(async () =>
             {
-                var api = await CreateApiClientAsync(email, password);
+                var api = await RcpApiClient.CreateApiClientAsync(email, password);
                 return api;
             });
         }
@@ -71,18 +73,19 @@ public static class RcpAutomationService
     }
 
     /// <summary>
-    /// TODO
+    /// Checks the current GitHub version and updates the application if a newer version is available, with retry logic.
     /// </summary>
-    /// <param name="email"></param>
-    /// <param name="password"></param>
-    /// <returns></returns>
+    /// <returns>
+    /// Returns <c>true</c> if the version check and update process completed successfully;
+    /// otherwise, <c>false</c> if all retry attempts fail (e.g., due to network issues).
+    /// </returns>
     public static async Task<bool> CheckGitVersionAndUpdateApplicationWithRetryAsync()
     {
         try
         {
             return await RetryPolicy.ExecuteAsync(async () =>
             {
-                await CheckGitVersionAndUpdateApplicationAsync();
+                await GitHubUpdater.CheckVersionAndUpdateApplicationAsync();
                 return true;
             });
         }
@@ -217,26 +220,6 @@ public static class RcpAutomationService
     public static async Task<bool> CheckIfWorkAlreadyStartedAsync(RcpApiClient api)
     {
         return await api.CheckIfWorkAlreadyStarted();
-    }
-
-    /// <summary>
-    /// TODO
-    /// </summary>
-    /// <param name="email"></param>
-    /// <param name="password"></param>
-    /// <returns></returns>
-    public static async Task<RcpApiClient> CreateApiClientAsync(string email, string password)
-    {
-        return await RcpApiClient.CreateApiClientAsync(email, password);
-    }
-
-    /// <summary>
-    /// TODO
-    /// </summary>
-    /// <returns></returns>
-    public static async Task CheckGitVersionAndUpdateApplicationAsync()
-    {
-        await GitHubUpdater.CheckVersionAndUpdateApplicationAsync();
     }
 
     /// <summary>
