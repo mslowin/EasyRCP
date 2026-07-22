@@ -6,6 +6,7 @@ CredentialsForm będzie odpalane jako dialog i będzie służyć tylko do wpisyw
 MainForm będzie jako Application Run i to będzie wiecznie ukryte okno, które będzie miało w tray'u wszystkie przyciski <br />
 TODO3: Pozbierać wszystkie try catche, żeby rzucały wyjątki do Program.cs <br />
 TODO4: Sprawdzić, czy da siępobrać kto jest online/zdalnie/na urlopie i może wyświetlać to w tray menu? <br />
+TODO5: Da się kilka razy odpalać aplikację na raz - trzeba dodać sprawdzenie czy jest jużuruchomiona i jak tak to exit <br />
 
 # Automatyczna aktualizacja aplikacji przez GitHub Releases
 
